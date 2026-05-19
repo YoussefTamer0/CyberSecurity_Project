@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield AI — Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:  #1a1d27; --bg2: #1e2235; --bg3: #232840; --bg4: #2a3050;
+    --border: #2e3550; --border2: #3a4368;
+    --accent: #7aa2f7; --accent2: #73daca; --accent3: #f7768e;
+    --accent4: #e0af68; --accent5: #bb9af7;
+    --text: #c0caf5; --text2: #a9b1d6; --text3: #565f89; --text4: #414868;
+    --mono: 'JetBrains Mono', monospace; --ui: 'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 0; overflow-x: hidden; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 60% at 10% 20%, rgba(115,218,202,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(122,162,247,.06) 0%, transparent 70%);
+  }
+  .grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: linear-gradient(rgba(122,162,247,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(122,162,247,.02) 1px,transparent 1px); background-size: 48px 48px; }
+  .corner { position: fixed; width: 44px; height: 44px; pointer-events: none; z-index: 2; }
+  .corner::before,.corner::after { content: ''; position: absolute; background: var(--accent2); opacity: .4; }
+  .corner::before { width: 2px; height: 100%; } .corner::after { width: 100%; height: 2px; }
+  .corner.tl{top:22px;left:22px} .corner.tr{top:22px;right:22px;transform:scaleX(-1)}
+  .corner.bl{bottom:22px;left:22px;transform:scaleY(-1)} .corner.br{bottom:22px;right:22px;transform:scale(-1)}
+
+  .card {
+    position: relative; z-index: 10; width: 460px;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 36px 40px;
+    animation: cardIn .6s cubic-bezier(.16,1,.3,1);
+    box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    max-height: calc(100vh - 48px); overflow-y: auto;
+  }
+  .card::-webkit-scrollbar { width: 3px; } .card::-webkit-scrollbar-thumb { background: var(--border); }
+  .card::before { content: ''; position: absolute; top: -1px; left: 40px; right: 40px; height: 1px; background: linear-gradient(90deg,transparent,rgba(115,218,202,.5),rgba(122,162,247,.4),transparent); }
+  @keyframes cardIn { from{opacity:0;transform:translateY(28px) scale(.97)} to{opacity:1;transform:none} }
+
+  .brand { text-align: center; margin-bottom: 28px; }
+  .brand-icon { width: 58px; height: 58px; margin: 0 auto 14px; border: 1.5px solid rgba(115,218,202,.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(115,218,202,.12); animation: iconPulse 3s ease infinite; }
+  @keyframes iconPulse { 0%,100%{box-shadow:0 0 25px rgba(115,218,202,.1)}50%{box-shadow:0 0 45px rgba(115,218,202,.2)} }
+  .brand-name { font-family: var(--ui); font-size: 18px; font-weight: 800; letter-spacing: 2px; color: var(--accent2); text-shadow: 0 0 25px rgba(115,218,202,.25); }
+  .brand-sub { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; margin-top: 5px; text-transform: uppercase; }
+
+  .form-group { margin-bottom: 16px; }
+  label { display: flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); margin-bottom: 7px; }
+  .field-num { font-size: 9px; padding: 1px 6px; border: 1px solid var(--border); color: var(--text4); border-radius: 20px; }
+
+  .input-wrap { position: relative; border: 1px solid var(--border); background: rgba(0,0,0,.25); border-radius: 7px; transition: border-color .2s, box-shadow .2s; }
+  .input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,162,247,.09); }
+  .input-wrap input { width: 100%; background: none; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 13px; padding: 11px 42px 11px 13px; border-radius: 7px; }
+  .input-wrap input::placeholder { color: var(--text4); }
+  .input-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; transition: color .2s; }
+  .input-wrap:focus-within .input-icon { color: var(--accent); }
+
+  /* Password fields */
+  .pwd-wrap { position: relative; border: 1px solid var(--border); background: rgba(0,0,0,.25); border-radius: 7px; transition: border-color .2s, box-shadow .2s; }
+  #pwd-wrap1:focus-within { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(115,218,202,.07); }
+  #pwd-wrap2:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,162,247,.07); }
+  .pwd-wrap input { width: 100%; background: none; border: none; outline: none; color: var(--text); caret-color: var(--accent2); font-family: var(--mono); font-size: 13px; padding: 11px 44px 11px 13px; border-radius: 7px; }
+  .pwd-wrap input::placeholder { color: var(--text4); }
+  .eye-btn { position: absolute; right: 0; top: 0; bottom: 0; width: 42px; background: none; border: none; border-left: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: all .2s; border-radius: 0 7px 7px 0; }
+  .eye-btn:hover { background: rgba(122,162,247,.05); color: var(--accent); }
+  .eye-btn.on { color: var(--accent2); border-left-color: rgba(115,218,202,.25); }
+
+  .strength-bar { height: 2px; background: var(--border); overflow: hidden; border-radius: 1px; }
+  .strength-fill { height: 100%; width: 0%; transition: width .3s, background .3s; border-radius: 1px; }
+  .strength-row { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; }
+  #strength-label { color: var(--text3); transition: color .3s; }
+  #entropy-label { color: var(--text3); }
+  .req-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .req { font-size: 9px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 20px; color: var(--text4); transition: all .2s; }
+  .req.met { border-color: rgba(115,218,202,.4); color: var(--accent2); background: rgba(115,218,202,.05); }
+  #match-indicator { font-size: 10px; margin-top: 5px; height: 14px; transition: all .2s; }
+
+  /* Generator */
+  .gen-section { margin-bottom: 18px; padding: 16px; border: 1px solid rgba(122,162,247,.15); background: rgba(122,162,247,.03); border-radius: 8px; }
+  .gen-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 13px; display: flex; align-items: center; gap: 8px; font-family: var(--mono); }
+
+  .gen-opt-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+  .gen-toggle-label { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text2); cursor: pointer; text-transform: none; letter-spacing: 0; }
+  .gen-toggle-label input[type="checkbox"] { accent-color: var(--accent2); width: 13px; height: 13px; cursor: pointer; }
+
+  .gen-length { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text2); margin-bottom: 0; }
+  .gen-length input[type="range"] { flex: 1; accent-color: var(--accent); height: 3px; cursor: pointer; }
+  #gen-len-val { color: var(--accent); min-width: 18px; font-weight: 600; }
+  .gen-output { font-family: var(--mono); font-size: 14px; color: var(--accent2); padding: 11px 14px; background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 6px; min-height: 44px; word-break: break-all; letter-spacing: 1.5px; line-height: 1.6; margin: 12px 0 6px; cursor: text; user-select: all; transition: border-color .3s, box-shadow .3s; }
+  .gen-output.flash { border-color: var(--accent2); box-shadow: 0 0 16px rgba(115,218,202,.15); }
+  .gen-output.empty { color: var(--text4); letter-spacing: normal; font-size: 12px; }
+  .entropy-display { font-size: 10px; color: var(--text3); margin-bottom: 10px; min-height: 14px; }
+
+  .gen-controls { display: flex; gap: 7px; flex-wrap: wrap; }
+  .gen-btn { padding: 7px 13px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); font-family: var(--mono); font-size: 10px; cursor: pointer; transition: all .2s; border-radius: 5px; }
+  .gen-btn:hover { background: var(--bg4); color: var(--text); }
+  .gen-btn.copy { border-color: rgba(115,218,202,.3); color: var(--accent2); }
+  .gen-btn.copy:hover { background: rgba(115,218,202,.08); }
+  .gen-btn.use { border-color: rgba(224,175,104,.3); color: var(--accent4); }
+  .gen-btn.use:hover { background: rgba(224,175,104,.07); }
+
+  .submit-btn { width: 100%; padding: 13px; background: transparent; border: 1px solid var(--accent2); color: var(--accent2); font-family: var(--ui); font-size: 15px; font-weight: 700; letter-spacing: 2px; cursor: pointer; position: relative; overflow: hidden; transition: color .3s, box-shadow .3s; margin-top: 10px; border-radius: 7px; }
+  .submit-btn::before { content: ''; position: absolute; inset: 0; background: var(--accent2); transform: translateX(-101%); transition: transform .35s cubic-bezier(.16,1,.3,1); z-index: -1; }
+  .submit-btn:hover { color: var(--bg); box-shadow: 0 0 24px rgba(115,218,202,.25); }
+  .submit-btn:hover::before { transform: translateX(0); }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .msg-box { padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 14px; display: none; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)}to{opacity:1} }
+  .msg-box.error   { background: rgba(247,118,142,.08); border: 1px solid rgba(247,118,142,.3); color: var(--accent3); display: block; }
+  .msg-box.success { background: rgba(115,218,202,.08); border: 1px solid rgba(115,218,202,.3); color: var(--accent2); display: block; }
+  .footer-links { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text3); }
+  .footer-links a { color: var(--accent); text-decoration: none; } .footer-links a:hover { color: var(--accent2); }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(115,218,202,.2); border-top-color: var(--accent2); border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; vertical-align: middle; margin-right: 7px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+
+<div class="card">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#73daca" stroke-width="1.5">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
+    </div>
+    <div class="brand-name">Register Agent</div>
+    <div class="brand-sub">Create Secure Access Credentials</div>
+  </div>
+
+  <div class="msg-box" id="msg-box"></div>
+
+  <form onsubmit="handleSignup(event)">
+    <!-- 01 EMAIL -->
+    <div class="form-group">
+      <label><span class="field-num">01</span> Email Address</label>
+      <div class="input-wrap">
+        <input type="email" id="email" placeholder="agent@cybershield.io" autocomplete="email" required>
+        <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 02 USERNAME -->
+    <div class="form-group">
+      <label><span class="field-num">02</span> Username</label>
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="choose_username" autocomplete="username" required minlength="3">
+        <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Password Generator -->
+    <div class="gen-section">
+      <div class="gen-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Strong Password Generator
+      </div>
+      <div class="gen-opt-row">
+        <label class="gen-toggle-label"><input type="checkbox" id="opt-upper" checked> A-Z (uppercase)</label>
+        <label class="gen-toggle-label"><input type="checkbox" id="opt-lower" checked> a-z (lowercase)</label>
+        <label class="gen-toggle-label"><input type="checkbox" id="opt-digits" checked> 0-9</label>
+        <label class="gen-toggle-label"><input type="checkbox" id="opt-symbols" checked> !@#$</label>
+      </div>
+      <div class="gen-length">
+        <span>Length:</span>
+        <input type="range" id="gen-length" min="8" max="32" value="16" oninput="document.getElementById('gen-len-val').textContent=this.value">
+        <span id="gen-len-val">16</span>
+      </div>
+      <div id="gen-output" class="gen-output empty" onclick="selectAllText(this)">— click Generate —</div>
+      <div class="entropy-display" id="gen-entropy"></div>
+      <div class="gen-controls">
+        <button type="button" class="gen-btn" onclick="generatePassword()">⚡ Generate</button>
+        <button type="button" class="gen-btn copy" onclick="copyGenerated(event)">⎘ Copy</button>
+        <button type="button" class="gen-btn use" onclick="useGenerated(event)">↓ Use Password</button>
+      </div>
+    </div>
+
+    <!-- 03 PASSWORD -->
+    <div class="form-group">
+      <label><span class="field-num">03</span> Password</label>
+      <div class="pwd-wrap" id="pwd-wrap1">
+        <input type="password" id="password" placeholder="create_password" autocomplete="new-password" required minlength="6" oninput="handlePwd1(this)">
+        <button type="button" class="eye-btn" id="eye-btn1" onclick="toggleEye('password','eye-btn1','e1o','e1c')">
+          <svg id="e1o" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="e1c" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="sf1"></div></div>
+      <div class="strength-row">
+        <span id="strength-label">Strength: —</span>
+        <span id="entropy-label"></span>
+      </div>
+      <div class="req-list">
+        <span class="req" id="req-len">8+ chars</span>
+        <span class="req" id="req-upper">UPPER</span>
+        <span class="req" id="req-lower">lower</span>
+        <span class="req" id="req-digit">123</span>
+        <span class="req" id="req-sym">!@#</span>
+      </div>
+    </div>
+
+    <!-- 04 CONFIRM -->
+    <div class="form-group">
+      <label><span class="field-num">04</span> Confirm Password</label>
+      <div class="pwd-wrap" id="pwd-wrap2">
+        <input type="password" id="password2" placeholder="repeat_password" autocomplete="new-password" required oninput="handlePwd2(this)">
+        <button type="button" class="eye-btn" id="eye-btn2" onclick="toggleEye('password2','eye-btn2','e2o','e2c')">
+          <svg id="e2o" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="e2c" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <div class="strength-bar"><div class="strength-fill" id="sf2"></div></div>
+      <div id="match-indicator"></div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Create Account</button>
+  </form>
+
+  <hr class="divider">
+  <div class="footer-links">Already registered? <a href="Login.html">Login here</a></div>
+</div>
+
+<script>
+function toggleEye(inputId,btnId,openId,closedId){
+  const inp=document.getElementById(inputId),btn=document.getElementById(btnId);
+  const isHidden=inp.type==='password';
+  inp.type=isHidden?'text':'password';
+  document.getElementById(openId).style.display=isHidden?'none':'block';
+  document.getElementById(closedId).style.display=isHidden?'block':'none';
+  btn.classList.toggle('on',isHidden);
+}
+
+function updateStrength(pwd){
+  const reqs={len:pwd.length>=8,upper:/[A-Z]/.test(pwd),lower:/[a-z]/.test(pwd),digit:/\d/.test(pwd),sym:/[^A-Za-z0-9]/.test(pwd)};
+  Object.entries(reqs).forEach(([k,v])=>{const el=document.getElementById('req-'+k);if(el)el.classList.toggle('met',v);});
+  const score=Object.values(reqs).filter(Boolean).length+(pwd.length>=12?1:0);
+  const pct=Math.min(score/6*100,100);
+  const colors=['#f7768e','#e0af68','#e0af68','#73daca','#7aa2f7'];
+  const idx=Math.min(Math.floor(score/6*5),4);
+  const labels=['Very Weak','Weak','Fair','Strong','Very Strong'];
+  document.getElementById('sf1').style.cssText=`width:${pct}%;background:${colors[idx]}`;
+  document.getElementById('strength-label').textContent='Strength: '+labels[idx];
+  document.getElementById('strength-label').style.color=colors[idx];
+  let sz=0;if(/[A-Z]/.test(pwd))sz+=26;if(/[a-z]/.test(pwd))sz+=26;if(/\d/.test(pwd))sz+=10;if(/[^A-Za-z0-9]/.test(pwd))sz+=32;
+  document.getElementById('entropy-label').textContent=pwd.length&&sz?`~${(pwd.length*Math.log2(sz)).toFixed(0)} bits entropy`:'';
+}
+
+function handlePwd1(inp){updateStrength(inp.value);checkMatch();}
+
+function handlePwd2(inp){
+  const p1=document.getElementById('password').value,val=inp.value;
+  const sf2=document.getElementById('sf2');
+  if(val.length>0){const pct=Math.min(val.length/Math.max(p1.length,1)*100,100);sf2.style.cssText=`width:${pct}%;background:${pct>=100?'#73daca':'#7aa2f7'}`;}
+  else sf2.style.width='0%';
+  checkMatch();
+}
+
+function checkMatch(){
+  const p1=document.getElementById('password').value,p2=document.getElementById('password2').value;
+  const ind=document.getElementById('match-indicator');
+  if(!p2){ind.textContent='';return;}
+  ind.textContent=p1===p2?'✓ Passwords match':'✕ Passwords do not match';
+  ind.style.color=p1===p2?'#73daca':'#f7768e';
+}
+
+let lastGenerated = '';
+
+function randInt(max) {
+  const a = new Uint32Array(1);
+  crypto.getRandomValues(a);
+  return a[0] % max;
+}
+
+function generatePassword() {
+  const out = document.getElementById('gen-output');
+  const len = parseInt(document.getElementById('gen-length').value);
+
+  const useUpper   = document.getElementById('opt-upper').checked;
+  const useLower   = document.getElementById('opt-lower').checked;
+  const useDigits  = document.getElementById('opt-digits').checked;
+  const useSymbols = document.getElementById('opt-symbols').checked;
+
+  // Common symbols only — ones found on every keyboard, used in most sites
+  const UPPER   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';   // no I, O (look like 1, 0)
+  const LOWER   = 'abcdefghjkmnpqrstuvwxyz';    // no i, l, o
+  const DIGITS  = '23456789';                   // no 0, 1
+  const SYMBOLS = '!@#$%&*-+?';               // 10 common, no quotes/backslash/brackets
+
+  const pools = [];
+  if (useUpper)   pools.push(UPPER);
+  if (useLower)   pools.push(LOWER);
+  if (useDigits)  pools.push(DIGITS);
+  if (useSymbols) pools.push(SYMBOLS);
+
+  if (!pools.length) { out.textContent = '⚠ Select at least one option'; return; }
+
+  // Build full charset
+  const charset = pools.join('');
+
+  // Guarantee at least one char from each active pool
+  const guaranteed = pools.map(p => p[randInt(p.length)]);
+
+  // Fill remaining slots from full charset
+  const remaining = len - guaranteed.length;
+  const fillBytes = new Uint32Array(Math.max(remaining, 0));
+  crypto.getRandomValues(fillBytes);
+  const filled = Array.from(fillBytes).map(b => charset[b % charset.length]);
+
+  // Merge then Fisher-Yates shuffle — breaks any positional pattern
+  const all = [...guaranteed, ...filled];
+  const shuffleBytes = new Uint32Array(all.length);
+  crypto.getRandomValues(shuffleBytes);
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = shuffleBytes[i] % (i + 1);
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+
+  const pwd = all.join('');
+  lastGenerated = pwd;
+
+  // Entropy calculation
+  const poolSize = (useUpper ? UPPER.length : 0)
+                 + (useLower ? LOWER.length : 0)
+                 + (useDigits ? DIGITS.length : 0)
+                 + (useSymbols ? SYMBOLS.length : 0);
+  const bits = (len * Math.log2(poolSize)).toFixed(0);
+  const qual = bits > 100 ? 'Excellent' : bits > 75 ? 'Strong' : bits > 50 ? 'Good' : 'Fair';
+
+  out.textContent = pwd;
+  out.classList.remove('empty');
+  out.classList.add('flash');
+  setTimeout(() => out.classList.remove('flash'), 600);
+  document.getElementById('gen-entropy').textContent = `~${bits} bits entropy — ${qual}`;
+}
+
+function copyGenerated(e){
+  if(!lastGenerated)return;
+  navigator.clipboard.writeText(lastGenerated).then(()=>{
+    const btn=e.target.closest('.gen-btn'),orig=btn.textContent;
+    btn.textContent='✓ Copied!';btn.style.color='#73daca';
+    setTimeout(()=>{btn.textContent=orig;btn.style.color='';},1500);
+  });
+}
+
+function useGenerated(e){
+  if(!lastGenerated)return;
+  const p1=document.getElementById('password'),p2=document.getElementById('password2');
+  p1.value=lastGenerated;p2.value=lastGenerated;
+  handlePwd1(p1);handlePwd2(p2);
+  const btn=e.target.closest('.gen-btn'),orig=btn.textContent;
+  btn.textContent='↓ Applied!';btn.style.color='#73daca';
+  setTimeout(()=>{btn.textContent=orig;btn.style.color='';},1500);
+}
+
+function selectAllText(el){if(el.classList.contains('empty'))return;const r=document.createRange();r.selectNodeContents(el);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+
+async function handleSignup(e){
+  e.preventDefault();
+  const btn=document.getElementById('submit-btn'),msg=document.getElementById('msg-box');
+  const email=document.getElementById('email').value.trim();
+  const username=document.getElementById('username').value.trim();
+  const password=document.getElementById('password').value;
+  const password2=document.getElementById('password2').value;
+  if(password!==password2){msg.className='msg-box error';msg.textContent='✕ Passwords do not match';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Registering...';msg.className='msg-box';
+  try{
+    const res=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,username,password})});
+    const data=await res.json();
+    if(data.success){msg.className='msg-box success';msg.textContent=`✓ Account created for ${username} — redirecting...`;btn.innerHTML='✓ Registered';btn.style.borderColor='#73daca';setTimeout(()=>{window.location.href='/';},1200);}
+    else throw new Error(data.error||'Registration failed');
+  }catch(err){document.querySelector('.card').style.animation='shake .4s ease';setTimeout(()=>document.querySelector('.card').style.animation='',400);msg.className='msg-box error';msg.textContent='✕ '+err.message;btn.disabled=false;btn.innerHTML='Create Account';}
+}
+</script>
+</body>
+</html>

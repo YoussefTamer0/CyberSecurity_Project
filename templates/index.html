@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield AI — Security Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/solarized-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    /* Warm dark slate palette — easy on eyes */
+    --bg:   #1a1d27;
+    --bg2:  #1e2235;
+    --bg3:  #232840;
+    --bg4:  #2a3050;
+    --border:  #2e3550;
+    --border2: #3a4368;
+
+    /* Softer, muted accents */
+    --accent:  #7aa2f7;   /* soft blue */
+    --accent2: #73daca;   /* muted teal */
+    --accent3: #f7768e;   /* soft red */
+    --accent4: #e0af68;   /* warm amber */
+    --accent5: #bb9af7;   /* lavender */
+
+    /* Comfortable text */
+    --text:  #c0caf5;
+    --text2: #a9b1d6;
+    --text3: #565f89;
+    --text4: #414868;
+
+    --glow: 0 0 24px rgba(122,162,247,.12);
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui:   'Syne', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --radius: 6px;
+    --sidebar-w: 268px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Subtle noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: .6;
+  }
+
+  /* Soft gradient mesh background */
+  .bg-mesh {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(122,162,247,.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(115,218,202,.05) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 50% 50%, rgba(187,154,247,.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  header {
+    background: rgba(26,29,39,.96);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo svg { width: 30px; height: 30px; }
+  .logo-text {
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    text-shadow: 0 0 30px rgba(122,162,247,.35);
+  }
+  .logo-text span { color: var(--text3); font-weight: 400; }
+
+  .header-right { display: flex; align-items: center; gap: 8px; }
+
+  .status-indicators { display: flex; gap: 5px; align-items: center; }
+  .status-dot {
+    display: flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--text4);
+    padding: 3px 7px; border: 1px solid var(--border);
+    border-radius: 4px; background: var(--bg3);
+    transition: all .3s;
+  }
+  .status-dot .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text4); transition: all .3s; }
+  .status-dot.active .dot { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .status-dot.active { color: var(--text2); border-color: rgba(115,218,202,.2); }
+
+  #auth-area { display: flex; align-items: center; gap: 7px; }
+  .user-badge {
+    display: flex; align-items: center; gap: 7px;
+    padding: 4px 10px; border: 1px solid var(--border);
+    border-radius: var(--radius); background: var(--bg3);
+    font-family: var(--font-mono); font-size: 11px; color: var(--text2);
+  }
+  .user-badge .user-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .logout-btn {
+    background: none; border: 1px solid rgba(247,118,142,.25);
+    color: var(--accent3); font-family: var(--font-mono); font-size: 10px;
+    padding: 4px 9px; cursor: pointer; border-radius: 4px; transition: all .2s;
+  }
+  .logout-btn:hover { background: rgba(247,118,142,.08); border-color: var(--accent3); }
+  .login-btn {
+    background: none; border: 1px solid rgba(122,162,247,.3);
+    color: var(--accent); font-family: var(--font-mono); font-size: 10px;
+    padding: 4px 10px; cursor: pointer; border-radius: 4px;
+    text-decoration: none; transition: all .2s;
+  }
+  .login-btn:hover { background: rgba(122,162,247,.08); border-color: var(--accent); }
+  .profile-btn {
+    background: none; border: 1px solid rgba(115,218,202,.25);
+    color: var(--accent2); font-family: var(--font-mono); font-size: 10px;
+    padding: 4px 9px; cursor: pointer; border-radius: 4px; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+  }
+  .profile-btn:hover { background: rgba(115,218,202,.08); border-color: var(--accent2); }
+
+  /* ── Profile Modal ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; display: flex; align-items: center; justify-content: center; animation: fadeIn .2s ease; backdrop-filter: blur(4px); }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: var(--bg2); border: 1px solid var(--border2); width: 440px; border-radius: var(--radius); overflow: hidden; animation: modalIn .3s cubic-bezier(.16,1,.3,1); box-shadow: 0 24px 64px rgba(0,0,0,.5); }
+  @keyframes modalIn { from{opacity:0;transform:translateY(20px) scale(.97)} to{opacity:1;transform:none} }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-family: var(--font-ui); font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--accent2); }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-family: var(--font-mono); font-size: 13px; padding: 2px 6px; transition: color .15s; border-radius: 3px; }
+  .modal-close:hover { color: var(--accent3); background: rgba(247,118,142,.08); }
+  .modal-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section-title { font-family: var(--font-mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+  .profile-field { margin-bottom: 12px; }
+  .profile-field label { font-family: var(--font-mono); font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+  .profile-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 9px 12px; outline: none; transition: border-color .2s; border-radius: 4px; }
+  .profile-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(122,162,247,.1); }
+  .profile-msg { font-family: var(--font-mono); font-size: 11px; padding: 8px 11px; border-radius: 4px; margin-bottom: 10px; display: none; }
+  .profile-msg.error { background: rgba(247,118,142,.08); border: 1px solid rgba(247,118,142,.3); color: var(--accent3); display: block; }
+  .profile-msg.success { background: rgba(115,218,202,.08); border: 1px solid rgba(115,218,202,.3); color: var(--accent2); display: block; }
+  .profile-save-btn { background: var(--bg4); border: 1px solid var(--border2); color: var(--accent); font-family: var(--font-mono); font-size: 11px; padding: 8px 16px; cursor: pointer; transition: all .2s; letter-spacing: .5px; border-radius: 4px; }
+  .profile-save-btn:hover { background: rgba(122,162,247,.1); border-color: var(--accent); }
+  .profile-info-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px; }
+  .profile-info-row:last-child { border: none; }
+  .profile-info-key { color: var(--text3); min-width: 80px; }
+  .profile-info-val { color: var(--text); }
+  .modal-pwd-bar { height: 2px; background: var(--border); margin-top: 4px; overflow: hidden; border-radius: 2px; }
+  .modal-pwd-fill { height: 100%; width: 0%; transition: width .3s, background .3s; border-radius: 2px; }
+
+  /* ── Layout ── */
+  .app-layout { display: flex; flex: 1; overflow: hidden; position: relative; z-index: 1; height: calc(100vh - 54px); }
+
+  /* ── History Rail + Drawer ── */
+
+  /* The narrow 44px icon rail always visible when logged in */
+  .history-rail {
+    width: 44px; min-width: 44px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: none; /* shown via JS when logged in */
+    flex-direction: column; align-items: center;
+    gap: 2px; padding: 8px 0;
+    flex-shrink: 0; height: 100%; z-index: 20;
+  }
+  .history-rail.visible { display: flex; }
+
+  .rail-btn {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: none; border: none; color: var(--text3);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .2s; position: relative;
+  }
+  .rail-btn:hover { background: var(--bg4); color: var(--text2); }
+  .rail-btn.active { background: rgba(122,162,247,.12); color: var(--accent); }
+  .rail-btn .rail-tooltip {
+    position: absolute; left: 42px; top: 50%; transform: translateY(-50%);
+    background: var(--bg4); border: 1px solid var(--border2);
+    color: var(--text2); font-family: var(--font-mono); font-size: 10px;
+    padding: 4px 8px; border-radius: 4px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .15s;
+    z-index: 100;
+  }
+  .rail-btn:hover .rail-tooltip { opacity: 1; }
+
+  .rail-divider { width: 24px; height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* Slide-out drawer */
+  .history-drawer {
+    position: fixed; top: 54px; left: 44px; bottom: 0;
+    width: 240px; z-index: 19;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    transform: translateX(-100%); opacity: 0;
+    transition: transform .22s cubic-bezier(.16,1,.3,1), opacity .18s ease;
+    pointer-events: none;
+  }
+  .history-drawer.open {
+    transform: translateX(0); opacity: 1; pointer-events: all;
+  }
+
+  /* Backdrop for closing drawer on outside click */
+  .history-backdrop {
+    position: fixed; inset: 0; z-index: 18;
+    display: none;
+  }
+  .history-backdrop.visible { display: block; }
+
+  .history-header {
+    padding: 12px 14px 10px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .history-title { font-family: var(--font-mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; }
+  .history-new-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: none; border: 1px solid var(--border2); border-radius: 4px;
+    color: var(--text2); font-family: var(--font-mono); font-size: 9px;
+    padding: 4px 8px; cursor: pointer; transition: all .2s;
+  }
+  .history-new-btn:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(115,218,202,.05); }
+
+  .history-search {
+    padding: 8px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .history-search input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text); font-family: var(--font-mono);
+    font-size: 11px; padding: 6px 10px; outline: none; transition: border-color .2s;
+  }
+  .history-search input:focus { border-color: var(--accent); }
+  .history-search input::placeholder { color: var(--text4); }
+
+  .history-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+  .history-list::-webkit-scrollbar { width: 3px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .history-group-label {
+    font-family: var(--font-mono); font-size: 9px; color: var(--text4);
+    text-transform: uppercase; letter-spacing: 1.5px;
+    padding: 8px 6px 4px; margin-top: 4px;
+  }
+
+  .history-item {
+    display: flex; align-items: center;
+    border-radius: 5px; margin-bottom: 2px;
+    transition: background .15s; cursor: pointer; position: relative;
+  }
+  .history-item:hover { background: var(--bg4); }
+  .history-item.active { background: rgba(122,162,247,.1); }
+  .history-item.active .hi-title { color: var(--accent); }
+
+  .hi-body { flex: 1; min-width: 0; padding: 7px 8px 7px 10px; }
+  .hi-title {
+    font-size: 12px; color: var(--text2); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; line-height: 1.4;
+    font-family: var(--font-body);
+  }
+  .hi-meta { font-family: var(--font-mono); font-size: 9px; color: var(--text4); margin-top: 2px; }
+
+  .hi-actions { display: none; align-items: center; gap: 1px; padding-right: 6px; flex-shrink: 0; }
+  .history-item:hover .hi-actions { display: flex; }
+
+  .hi-act-btn {
+    background: none; border: none; color: var(--text3); cursor: pointer;
+    padding: 4px 5px; border-radius: 3px; transition: all .15s; line-height: 1;
+  }
+  .hi-act-btn:hover { color: var(--text); background: var(--bg3); }
+  .hi-act-btn.del:hover { color: var(--accent3); }
+
+  .history-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 10px; padding: 24px; text-align: center;
+  }
+  .history-empty-icon { color: var(--text4); opacity: .4; }
+  .history-empty p { font-family: var(--font-mono); font-size: 10px; color: var(--text4); line-height: 1.7; }
+
+  .history-footer { border-top: 1px solid var(--border); padding: 8px 10px; flex-shrink: 0; }
+  .history-clear-btn {
+    width: 100%; background: none; border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text3); font-family: var(--font-mono);
+    font-size: 9px; padding: 6px; cursor: pointer; transition: all .2s;
+  }
+  .history-clear-btn:hover { border-color: var(--accent3); color: var(--accent3); background: rgba(247,118,142,.05); }
+
+  /* Remove old header toggle button — now lives in the rail */
+  .hist-toggle-btn { display: none !important; }
+
+  /* ── Sidebar ── */
+  aside {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    max-width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    height: 100%;
+  }
+  .sidebar-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-family: var(--font-mono); font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+
+  /* AI Selector */
+  .ai-selector { display: flex; flex-direction: column; gap: 4px; }
+  .ai-btn {
+    display: flex; align-items: center; gap: 9px; padding: 8px 11px;
+    border: 1px solid var(--border); border-radius: 5px; background: transparent;
+    color: var(--text3); cursor: pointer; font-family: var(--font-ui); font-size: 13px;
+    font-weight: 600; letter-spacing: .3px; transition: all .2s;
+  }
+  .ai-btn:hover { border-color: var(--border2); color: var(--text2); background: var(--bg3); }
+  .ai-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(122,162,247,.06); }
+  .ai-badge { width: 7px; height: 7px; border-radius: 50%; background: var(--text4); margin-left: auto; transition: all .3s; }
+  .ai-btn.available .ai-badge { background: var(--accent2); box-shadow: 0 0 5px var(--accent2); }
+  .ai-btn.selected .ai-badge { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+  /* Tabs */
+  .sidebar-tabs { display: flex; gap: 0; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    flex: 1; padding: 8px 0; background: transparent; border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text3); font-family: var(--font-mono); font-size: 9px;
+    cursor: pointer; letter-spacing: 1.5px; transition: all .2s; text-align: center;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text2); }
+  .tab-panel { display: none; padding: 12px 13px; overflow-y: auto; flex: 1; }
+  .tab-panel.active { display: block; }
+
+  /* Quick queries */
+  .quick-group { margin-bottom: 16px; }
+  .quick-group-label { font-family: var(--font-mono); font-size: 9px; color: var(--accent4); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 7px; padding-left: 2px; }
+  .quick-btn {
+    display: block; width: 100%; text-align: left; padding: 7px 10px;
+    border: 1px solid var(--border); border-radius: 4px; background: var(--bg3);
+    color: var(--text2); cursor: pointer; font-size: 11.5px; font-family: var(--font-body);
+    transition: all .15s; line-height: 1.4; margin-bottom: 4px;
+  }
+  .quick-btn:hover { border-color: var(--border2); color: var(--text); background: var(--bg4); transform: translateX(2px); }
+  .quick-btn.code { border-left: 2px solid rgba(115,218,202,.3); }
+  .quick-btn.code:hover { border-left-color: var(--accent2); }
+
+  /* Topics */
+  .topics-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+  .topic-pill {
+    font-family: var(--font-mono); font-size: 9px; padding: 3px 7px;
+    border: 1px solid var(--border); border-radius: 20px; color: var(--text3);
+    cursor: pointer; transition: all .15s; background: var(--bg3);
+  }
+  .topic-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(122,162,247,.06); }
+  .severity-critical { border-color: rgba(247,118,142,.25); }
+  .severity-high { border-color: rgba(224,175,104,.2); }
+
+  /* Projects */
+  .project-card {
+    padding: 9px 11px; border: 1px solid var(--border); border-radius: 5px;
+    background: var(--bg3); cursor: pointer; margin-bottom: 5px;
+    transition: all .15s; border-left: 3px solid rgba(115,218,202,.2);
+  }
+  .project-card:hover { border-color: var(--border2); border-left-color: var(--accent2); background: var(--bg4); transform: translateX(2px); }
+  .project-name { font-family: var(--font-ui); font-size: 12.5px; font-weight: 600; color: var(--text); letter-spacing: .2px; }
+  .project-desc { font-size: 10px; color: var(--text3); margin-top: 3px; line-height: 1.4; }
+
+  /* ── Chat ── */
+  .chat-container { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; position: relative; height: 100%; }
+  #chat-messages {
+    flex: 1; overflow-y: scroll; padding: 24px 36px; display: flex;
+    flex-direction: column; gap: 18px; scroll-behavior: smooth; min-height: 0;
+  }
+  #chat-messages::-webkit-scrollbar { width: 6px; }
+  #chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+
+  /* Welcome */
+  .welcome {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; gap: 18px; text-align: center;
+    padding: 40px; animation: fadeIn .7s ease;
+  }
+  .welcome-icon {
+    width: 76px; height: 76px; border: 1.5px solid rgba(122,162,247,.5);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(122,162,247,.15), inset 0 0 30px rgba(122,162,247,.05);
+    animation: pulse 3s ease infinite;
+  }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 30px rgba(122,162,247,.15),inset 0 0 20px rgba(122,162,247,.04)} 50%{box-shadow:0 0 60px rgba(122,162,247,.25),inset 0 0 40px rgba(122,162,247,.08)} }
+  .welcome h1 { font-family: var(--font-ui); font-size: 28px; font-weight: 800; letter-spacing: 2px; color: var(--accent); text-shadow: 0 0 40px rgba(122,162,247,.3); }
+  .welcome p { color: var(--text2); font-size: 13.5px; max-width: 400px; line-height: 1.7; }
+  .welcome-route {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center;
+    margin-top: 4px;
+  }
+  .route-pill {
+    font-family: var(--font-mono); font-size: 10px; padding: 3px 9px;
+    border: 1px solid var(--border2); border-radius: 20px; color: var(--text3); background: var(--bg3);
+  }
+  .route-arrow { color: var(--text4); font-size: 12px; }
+
+  /* Messages */
+  .message { display: flex; gap: 10px; animation: slideUp .3s ease; max-width: 860px; width: 100%; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .message.user { flex-direction: row-reverse; align-self: flex-end; max-width: 700px; }
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-family: var(--font-mono);
+    font-size: 9px; font-weight: 600; flex-shrink: 0; margin-top: 2px;
+  }
+  .message.user .msg-avatar { background: rgba(122,162,247,.12); border: 1px solid rgba(122,162,247,.25); color: var(--accent); }
+  .message.bot  .msg-avatar { background: rgba(115,218,202,.08); border: 1px solid rgba(115,218,202,.2); color: var(--accent2); }
+  .msg-body { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .msg-bubble { padding: 12px 16px; border-radius: var(--radius); line-height: 1.75; font-size: 13.5px; }
+  .message.user .msg-bubble { background: rgba(122,162,247,.08); border: 1px solid rgba(122,162,247,.15); color: var(--text); border-radius: var(--radius) var(--radius) 2px var(--radius); }
+  .message.bot  .msg-bubble { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius) var(--radius) var(--radius) 2px; }
+
+  /* Markdown */
+  .msg-bubble h1,.msg-bubble h2,.msg-bubble h3 { font-family: var(--font-ui); color: var(--accent); margin: 12px 0 6px; font-weight: 700; }
+  .msg-bubble h2 { font-size: 16px; } .msg-bubble h3 { font-size: 14px; }
+  .msg-bubble strong { color: var(--accent); font-weight: 600; }
+  .msg-bubble ul,.msg-bubble ol { padding-left: 18px; color: var(--text2); }
+  .msg-bubble li { margin: 3px 0; }
+  .msg-bubble code { font-family: var(--font-mono); font-size: 12px; background: rgba(0,0,0,.3); border: 1px solid var(--border2); padding: 1px 5px; border-radius: 3px; color: var(--accent2); }
+  .msg-bubble pre { background: #13151e; border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px; overflow-x: auto; margin: 10px 0; }
+  .msg-bubble pre code { background: none; border: none; padding: 0; color: inherit; font-size: 12px; }
+  .msg-bubble a { color: var(--accent); text-decoration: none; } .msg-bubble a:hover { text-decoration: underline; }
+  .msg-bubble blockquote { border-left: 3px solid var(--accent5); padding-left: 12px; color: var(--text3); margin: 8px 0; font-style: italic; }
+
+  /* Copy button */
+  .pre-wrapper { position: relative; }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(122,162,247,.1); border: 1px solid rgba(122,162,247,.2);
+    color: var(--accent); font-family: var(--font-mono); font-size: 9px;
+    padding: 3px 8px; cursor: pointer; border-radius: 3px; transition: all .15s;
+    letter-spacing: .5px;
+  }
+  .copy-btn:hover { background: rgba(122,162,247,.2); }
+
+  /* Meta row */
+  .msg-meta { display: flex; align-items: center; gap: 7px; padding: 0 2px; flex-wrap: wrap; }
+  .source-tag { font-family: var(--font-mono); font-size: 9px; padding: 2px 7px; border-radius: 20px; border: 1px solid; text-transform: uppercase; letter-spacing: .4px; }
+  .source-tag.question_bank { border-color: rgba(115,218,202,.35); color: var(--accent2); }
+  .source-tag.starter_code  { border-color: rgba(115,218,202,.4); color: var(--accent2); background: rgba(115,218,202,.06); }
+  .source-tag.claude        { border-color: rgba(122,162,247,.35); color: var(--accent); }
+  .source-tag.gemini        { border-color: rgba(224,175,104,.35); color: var(--accent4); }
+  .source-tag.openai        { border-color: rgba(187,154,247,.3); color: var(--accent5); }
+  .source-tag.web_search    { border-color: rgba(115,218,202,.25); color: var(--accent2); }
+  .source-tag.error         { border-color: rgba(247,118,142,.3); color: var(--accent3); }
+  .msg-time { font-family: var(--font-mono); font-size: 9px; color: var(--text4); }
+  .resp-time { font-family: var(--font-mono); font-size: 9px; color: var(--text4); }
+  .severity-tag { font-family: var(--font-mono); font-size: 8px; padding: 2px 6px; border-radius: 20px; border: 1px solid; text-transform: uppercase; letter-spacing: .4px; }
+  .severity-tag.critical { border-color: rgba(247,118,142,.4); color: var(--accent3); background: rgba(247,118,142,.06); }
+  .severity-tag.high       { border-color: rgba(224,175,104,.4); color: var(--accent4); background: rgba(224,175,104,.06); }
+  .severity-tag.info { display: none; }
+  .sources-tried { font-family: var(--font-mono); font-size: 9px; color: var(--text3); display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+  .sources-tried .src { color: var(--text2); }
+
+  /* Typing */
+  .typing-indicator .msg-bubble { display: flex; align-items: center; gap: 5px; padding: 14px 18px; }
+  .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s ease infinite; }
+  .typing-dot:nth-child(2) { animation-delay: .2s; background: var(--accent2); }
+  .typing-dot:nth-child(3) { animation-delay: .4s; background: var(--accent5); }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+  /* ── Input ── */
+  .input-bar { background: var(--bg2); border-top: 1px solid var(--border); padding: 14px 20px; }
+  .input-wrapper {
+    display: flex; align-items: flex-end; gap: 9px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; transition: all .2s;
+  }
+  .input-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,162,247,.08); }
+  #message-input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: var(--font-body); font-size: 13.5px; resize: none; max-height: 110px; line-height: 1.5; }
+  #message-input::placeholder { color: var(--text4); }
+  #send-btn {
+    background: var(--accent); border: none; border-radius: 6px;
+    width: 34px; height: 34px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; transition: all .2s; flex-shrink: 0;
+  }
+  #send-btn:hover { background: #92b3ff; box-shadow: 0 0 16px rgba(122,162,247,.35); }
+  #send-btn:disabled { background: var(--text4); cursor: not-allowed; box-shadow: none; }
+  #send-btn svg { color: var(--bg); }
+  .input-hint { font-family: var(--font-mono); font-size: 9px; color: var(--text4); margin-top: 6px; padding: 0 3px; display: flex; justify-content: space-between; align-items: center; }
+  .clear-btn { background: none; border: none; color: var(--text4); cursor: pointer; font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; transition: all .15s; }
+  .clear-btn:hover { color: var(--accent3); background: rgba(247,118,142,.07); }
+
+  /* Divider */
+  .h-divider { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .sidebar-scroll-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+  .sidebar-scroll-area::-webkit-scrollbar { width: 3px; }
+  .sidebar-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .tab-panel::-webkit-scrollbar { width: 3px; }
+  .tab-panel::-webkit-scrollbar-thumb { background: var(--border); }
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#7aa2f7" stroke-width="1.5" fill="rgba(122,162,247,0.06)"/>
+      <polygon points="18,8 28,13 28,23 18,28 8,23 8,13" stroke="#73daca" stroke-width="1" fill="rgba(115,218,202,0.04)"/>
+      <circle cx="18" cy="18" r="3.5" fill="#7aa2f7" opacity=".9"/>
+      <line x1="18" y1="8" x2="18" y2="14.5" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+      <line x1="18" y1="21.5" x2="18" y2="28" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+      <line x1="8" y1="13" x2="14.5" y2="16.5" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+      <line x1="21.5" y1="19.5" x2="28" y2="23" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+      <line x1="28" y1="13" x2="21.5" y2="16.5" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+      <line x1="14.5" y1="19.5" x2="8" y2="23" stroke="#7aa2f7" stroke-width="1" opacity=".5"/>
+    </svg>
+    <div class="logo-text">CYBERSHIELD<span> AI</span></div>
+  </div>
+  <div class="header-right">
+    <div class="status-indicators" id="status-indicators">
+      <div class="status-dot" id="dot-qb"><div class="dot"></div><span>QB</span></div>
+      <div class="status-dot" id="dot-claude"><div class="dot"></div><span>CLAUDE</span></div>
+      <div class="status-dot" id="dot-gemini"><div class="dot"></div><span>GEMINI</span></div>
+      <div class="status-dot" id="dot-openai"><div class="dot"></div><span>GPT</span></div>
+      <div class="status-dot" id="dot-web"><div class="dot"></div><span>WEB</span></div>
+    </div>
+    <div class="h-divider"></div>
+    <div id="auth-area"></div>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- Backdrop: closes drawer on outside click -->
+  <div class="history-backdrop" id="history-backdrop" onclick="closeDrawer()"></div>
+
+  <!-- Narrow icon rail — always visible when logged in -->
+  <div class="history-rail" id="history-rail">
+    <!-- Toggle drawer -->
+    <button class="rail-btn" id="rail-toggle-btn" onclick="toggleHistoryPanel()" title="Chat history">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <span class="rail-tooltip">Chat history</span>
+    </button>
+    <!-- New chat -->
+    <button class="rail-btn" onclick="startNewChat()" title="New chat">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span class="rail-tooltip">New chat</span>
+    </button>
+  </div>
+
+  <!-- Slide-out history drawer -->
+  <div class="history-drawer" id="history-drawer">
+    <div class="history-header">
+      <span class="history-title">History</span>
+      <button class="history-new-btn" onclick="startNewChat(); closeDrawer();">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+    </div>
+    <div class="history-search">
+      <input type="text" id="history-search-input" placeholder="Search conversations..." oninput="filterHistory(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">
+        <svg class="history-empty-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>No conversations yet.<br>Start chatting to see history here.</p>
+      </div>
+    </div>
+    <div class="history-footer">
+      <button class="history-clear-btn" onclick="clearAllHistory()">Delete all conversations</button>
+    </div>
+  </div>
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Primary AI</div>
+      <div class="ai-selector">
+        <button class="ai-btn selected" id="ai-gemini" onclick="selectAI('gemini')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+          Gemini (Google)
+          <span class="ai-badge" id="badge-gemini"></span>
+        </button>
+        <button class="ai-btn" id="ai-claude" onclick="selectAI('claude')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Claude (Anthropic)
+          <span class="ai-badge" id="badge-claude"></span>
+        </button>
+        <button class="ai-btn" id="ai-openai" onclick="selectAI('openai')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/></svg>
+          GPT-4o (OpenAI)
+          <span class="ai-badge" id="badge-openai"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" onclick="switchTab('queries')">QUERIES</button>
+      <button class="tab-btn" onclick="switchTab('projects')">PROJECTS</button>
+      <button class="tab-btn" onclick="switchTab('topics')">TOPICS</button>
+    </div>
+
+    <div class="sidebar-scroll-area">
+      <!-- QUERIES tab -->
+      <div class="tab-panel active" id="tab-queries">
+        <div class="quick-group">
+          <div class="quick-group-label">🛡️ Security Concepts</div>
+          <button class="quick-btn" onclick="sendQuick('Explain zero trust architecture and how to implement it')">Zero trust architecture</button>
+          <button class="quick-btn" onclick="sendQuick('What is the MITRE ATT&CK framework and how is it used?')">MITRE ATT&CK framework</button>
+          <button class="quick-btn" onclick="sendQuick('What tools are used in penetration testing?')">Penetration testing tools</button>
+          <button class="quick-btn" onclick="sendQuick('How does ransomware encrypt files and spread?')">Ransomware mechanics</button>
+          <button class="quick-btn" onclick="sendQuick('Explain OWASP Top 10 vulnerabilities')">OWASP Top 10</button>
+        </div>
+        <div class="quick-group">
+          <div class="quick-group-label">💻 Code Help</div>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for a packet sniffing tool in Python')">Packet sniffer starter</button>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for a SQL injection scanner in Python')">SQL injection scanner</button>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for a secure password generator')">Password generator</button>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for a hash function explorer')">Hash function explorer</button>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for credit card fraud detection')">Fraud detection ML</button>
+          <button class="quick-btn code" onclick="sendQuick('Show me starter code for a network port scanner')">Network scanner</button>
+        </div>
+        <div class="quick-group">
+          <div class="quick-group-label">🔬 Analysis</div>
+          <button class="quick-btn" onclick="sendQuick('How do I set up a secure Linux server from scratch?')">Secure Linux server setup</button>
+          <button class="quick-btn" onclick="sendQuick('What is SQL injection and how to prevent it in Python Flask?')">SQL injection prevention</button>
+          <button class="quick-btn" onclick="sendQuick('Explain how to implement MFA in a web application')">Implement MFA</button>
+        </div>
+      </div>
+
+      <!-- PROJECTS tab -->
+      <div class="tab-panel" id="tab-projects">
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-bottom:10px;padding:0 2px;">Click any project for starter code + guidance</div>
+        <div id="projects-list"></div>
+      </div>
+
+      <!-- TOPICS tab -->
+      <div class="tab-panel" id="tab-topics">
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-bottom:9px;">Click to ask about any topic</div>
+        <div class="topics-grid" id="topics-list">
+          <span class="topic-pill" style="color:var(--text3)">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="chat-container">
+    <div id="chat-messages">
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7aa2f7" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h1>CYBERSHIELD AI</h1>
+        <p>Your intelligent cybersecurity assistant. Ask questions, get starter code for projects, or explore security concepts.</p>
+        <p style="font-family:var(--font-mono);font-size:10px;color:var(--accent2);margin-top:2px">💡 Try: "Show me starter code for a packet sniffer"</p>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrapper">
+        <textarea id="message-input" rows="1" placeholder="Ask a cybersecurity question or request starter code..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="send-btn" onclick="sendMessage()" title="Send (Enter)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">
+        <span>Enter to send · Shift+Enter for new line · Type "starter code for [project]" for templates</span>
+        <button class="clear-btn" onclick="clearChat()">Clear chat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay hidden" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⬡ AGENT PROFILE</span>
+      <button class="modal-close" onclick="closeProfile()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="profile-msg" id="profile-msg"></div>
+      <div class="modal-section">
+        <div class="modal-section-title">Current Identity</div>
+        <div class="profile-info-row"><span class="profile-info-key">Username</span><span class="profile-info-val" id="profile-username-display">—</span></div>
+        <div class="profile-info-row"><span class="profile-info-key">Email</span><span class="profile-info-val" id="profile-email-display">—</span></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Update Email</div>
+        <div class="profile-field">
+          <label>New Email</label>
+          <input type="email" class="profile-input" id="new-email" placeholder="new_email@domain.com">
+        </div>
+        <button class="profile-save-btn" onclick="updateProfile('email')">Update Email</button>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Update Username</div>
+        <div class="profile-field">
+          <label>New Username</label>
+          <input type="text" class="profile-input" id="new-username" placeholder="new_username" minlength="3">
+        </div>
+        <button class="profile-save-btn" onclick="updateProfile('username')">Update Username</button>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Change Password</div>
+        <div class="profile-field">
+          <label>Current Password</label>
+          <input type="password" class="profile-input" id="current-pwd" placeholder="current password">
+        </div>
+        <div class="profile-field">
+          <label>New Password</label>
+          <input type="password" class="profile-input" id="new-pwd" placeholder="new password" oninput="updateModalStrength(this.value)">
+          <div class="modal-pwd-bar"><div class="modal-pwd-fill" id="modal-pwd-fill"></div></div>
+        </div>
+        <div class="profile-field">
+          <label>Confirm New Password</label>
+          <input type="password" class="profile-input" id="confirm-new-pwd" placeholder="repeat new password">
+        </div>
+        <button class="profile-save-btn" onclick="updateProfile('password')">Change Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+marked.setOptions({ breaks: true, gfm: true });
+let conversationHistory = [];
+let preferredAI = 'gemini';
+let isLoading = false;
+
+async function init() {
+  await Promise.all([loadStatus(), loadTopics(), loadProjects(), checkAuth()]);
+}
+
+async function checkAuth() {
+  try {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    const area = document.getElementById('auth-area');
+    if (d.username) {
+      area.innerHTML = `
+        <div class="user-badge"><span class="user-dot"></span><span>${d.username.toUpperCase()}</span></div>
+        <a href='Profile.html' class="profile-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile
+        </a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      `;
+      window._currentUser = d;
+      // Show history rail
+      document.getElementById('history-rail').classList.add('visible');
+      loadHistory();
+    } else {
+      area.innerHTML = `
+        <a href="Login.html" class="login-btn">Login</a>
+        <a href="Signup.html" class="login-btn" style="border-color:rgba(115,218,202,.3);color:var(--accent2)">Register</a>
+      `;
+      document.getElementById('hist-toggle-btn').style.display = 'none';
+      document.getElementById('history-rail').classList.remove('visible');
+      closeDrawer();
+    }
+  } catch(e) {}
+}
+
+function openProfile() {
+  const u = window._currentUser || {};
+  document.getElementById('profile-username-display').textContent = u.username || '—';
+  document.getElementById('profile-email-display').textContent = u.email || '—';
+  ['new-email','new-username','current-pwd','new-pwd','confirm-new-pwd'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('profile-msg').className = 'profile-msg';
+  document.getElementById('modal-pwd-fill').style.width = '0%';
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+
+function closeProfile() { document.getElementById('profile-modal').classList.add('hidden'); }
+document.addEventListener('click', (e) => { if (e.target.id === 'profile-modal') closeProfile(); });
+
+function updateModalStrength(pwd) {
+  let s = 0;
+  if(pwd.length>=8)s++;if(pwd.length>=12)s++;
+  if(/[A-Z]/.test(pwd))s++;if(/[a-z]/.test(pwd))s++;
+  if(/\d/.test(pwd))s++;if(/[^A-Za-z0-9]/.test(pwd))s++;
+  const colors=['#f7768e','#e0af68','#e0af68','#73daca','#7aa2f7'];
+  const fill = document.getElementById('modal-pwd-fill');
+  fill.style.width = Math.min(s/6*100,100)+'%';
+  fill.style.background = colors[Math.min(Math.floor(s/6*5),4)];
+}
+
+async function updateProfile(type) {
+  const msgEl = document.getElementById('profile-msg');
+  msgEl.className = 'profile-msg';
+  let payload = { type };
+  if (type === 'email') {
+    const val = document.getElementById('new-email').value.trim();
+    if (!val) { msgEl.className='profile-msg error'; msgEl.textContent='Email cannot be empty'; return; }
+    payload.email = val;
+  } else if (type === 'username') {
+    const val = document.getElementById('new-username').value.trim();
+    if (!val || val.length < 3) { msgEl.className='profile-msg error'; msgEl.textContent='Username must be 3+ characters'; return; }
+    payload.username = val;
+  } else if (type === 'password') {
+    const current = document.getElementById('current-pwd').value;
+    const newPwd = document.getElementById('new-pwd').value;
+    const confirm = document.getElementById('confirm-new-pwd').value;
+    if (!current) { msgEl.className='profile-msg error'; msgEl.textContent='Enter current password'; return; }
+    if (newPwd.length < 6) { msgEl.className='profile-msg error'; msgEl.textContent='New password too short (6+ chars)'; return; }
+    if (newPwd !== confirm) { msgEl.className='profile-msg error'; msgEl.textContent='New passwords do not match'; return; }
+    payload.current_password = current; payload.new_password = newPwd;
+  }
+  try {
+    const res = await fetch('/api/profile/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      msgEl.className = 'profile-msg success';
+      msgEl.textContent = '✓ ' + (data.message || 'Updated successfully');
+      if (data.user) {
+        window._currentUser = data.user;
+        document.getElementById('profile-username-display').textContent = data.user.username || '—';
+        document.getElementById('profile-email-display').textContent = data.user.email || '—';
+        const badge = document.querySelector('.user-badge span:last-child');
+        if (badge) badge.textContent = data.user.username.toUpperCase();
+      }
+    } else { throw new Error(data.error || 'Update failed'); }
+  } catch(err) {
+    msgEl.className = 'profile-msg error';
+    msgEl.textContent = '✕ ' + err.message;
+  }
+}
+
+async function logout() { await fetch('/api/logout', { method: 'POST' }); checkAuth(); }
+
+async function loadStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    if (d.claude)     { setDot('dot-claude',true); setAIAvailable('claude'); }
+    if (d.gemini)     { setDot('dot-gemini',true); setAIAvailable('gemini'); }
+    if (d.openai)     { setDot('dot-openai',true); setAIAvailable('openai'); }
+    if (d.web_search)   setDot('dot-web',true);
+    setDot('dot-qb', true);
+  } catch(e) {}
+}
+
+function setDot(id, active) { document.getElementById(id)?.classList.toggle('active', active); }
+function setAIAvailable(ai) { document.getElementById(`ai-${ai}`)?.classList.add('available'); }
+
+async function loadTopics() {
+  try {
+    const r = await fetch('/api/topics');
+    const d = await r.json();
+    document.getElementById('topics-list').innerHTML = d.topics.map(t =>
+      `<span class="topic-pill severity-${t.severity}" onclick="sendQuick('Tell me about ${t.key}')">${t.key}</span>`
+    ).join('');
+  } catch(e) {}
+}
+
+async function loadProjects() {
+  try {
+    const r = await fetch('/api/starter-codes');
+    const d = await r.json();
+    document.getElementById('projects-list').innerHTML = d.projects.map(p => `
+      <div class="project-card" onclick="sendQuick('Show me starter code for ${p.key}')">
+        <div class="project-name">${p.title}</div>
+        <div class="project-desc">${p.description}</div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['queries','projects','topics'][i]===tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function selectAI(ai) {
+  preferredAI = ai;
+  document.querySelectorAll('.ai-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`ai-${ai}`).classList.add('selected');
+}
+
+// ── History Panel ────────────────────────────────────────────────────────────
+let allSessions = [];
+let activeSessionId = null;
+let historyPanelVisible = false;
+
+function toggleHistoryPanel() {
+  historyPanelVisible = !historyPanelVisible;
+  document.getElementById('history-drawer').classList.toggle('open', historyPanelVisible);
+  document.getElementById('history-backdrop').classList.toggle('visible', historyPanelVisible);
+  document.getElementById('rail-toggle-btn').classList.toggle('active', historyPanelVisible);
+  if (historyPanelVisible) {
+    document.getElementById('history-search-input').focus();
+  }
+}
+
+function closeDrawer() {
+  historyPanelVisible = false;
+  document.getElementById('history-drawer').classList.remove('open');
+  document.getElementById('history-backdrop').classList.remove('visible');
+  document.getElementById('rail-toggle-btn')?.classList.remove('active');
+}
+
+function startNewChat() {
+  activeSessionId = null;
+  conversationHistory = [];
+  closeDrawer();
+  document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = `
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7aa2f7" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h1>CYBERSHIELD AI</h1>
+      <p>Your intelligent cybersecurity assistant.</p>
+    </div>`;
+  document.getElementById('message-input').focus();
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/history');
+    const d = await r.json();
+    if (!d.success) return;
+    allSessions = d.sessions || [];
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+function relativeTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffHrs  = Math.floor(diffMs / 3600000);
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1)   return 'just now';
+  if (diffMins < 60)  return `${diffMins}m ago`;
+  if (diffHrs < 24)   return `${diffHrs}h ago`;
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7)   return `${diffDays}d ago`;
+  return d.toLocaleDateString([], {month:'short', day:'numeric'});
+}
+
+function groupSessions(sessions) {
+  const groups = { Today: [], Yesterday: [], 'This week': [], Older: [] };
+  const now = new Date();
+  for (const s of sessions) {
+    const d = new Date(s.updated_at);
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (diffDays < 1)      groups['Today'].push(s);
+    else if (diffDays < 2) groups['Yesterday'].push(s);
+    else if (diffDays < 7) groups['This week'].push(s);
+    else                   groups['Older'].push(s);
+  }
+  return groups;
+}
+
+function renderHistory(sessions) {
+  const list = document.getElementById('history-list');
+  if (!sessions.length) {
+    list.innerHTML = `
+      <div class="history-empty">
+        <svg class="history-empty-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>No conversations yet.<br>Start chatting to see history here.</p>
+      </div>`;
+    return;
+  }
+
+  const groups = groupSessions(sessions);
+  let html = '';
+  for (const [label, items] of Object.entries(groups)) {
+    if (!items.length) continue;
+    html += `<div class="history-group-label">${label}</div>`;
+    for (const s of items) {
+      const isActive = s.id === activeSessionId;
+      const age = relativeTime(s.updated_at);
+      const title = escapeHtml(s.title);
+      html += `
+        <div class="history-item${isActive ? ' active' : ''}" id="hitem-${s.id}" onclick="loadSession(${s.id})">
+          <div class="hi-body">
+            <div class="hi-title">${title}</div>
+            <div class="hi-meta">${age} · ${s.message_count} msg${s.message_count !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="hi-actions">
+            <button class="hi-act-btn" onclick="renameSession(event,${s.id},'${title.replace(/'/g,"\\'")}'')" title="Rename">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="hi-act-btn del" onclick="deleteSession(event,${s.id})" title="Delete">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>`;
+    }
+  }
+  list.innerHTML = html;
+}
+
+function filterHistory(query) {
+  const q = query.toLowerCase().trim();
+  const filtered = q ? allSessions.filter(s => s.title.toLowerCase().includes(q)) : allSessions;
+  renderHistory(filtered);
+}
+
+async function loadSession(id) {
+  try {
+    const r = await fetch(`/api/history/${id}`);
+    const d = await r.json();
+    if (!d.success) return;
+
+    activeSessionId = id;
+    const s = d.session;
+
+    // Rebuild conversation history for context
+    conversationHistory = s.messages.map(m => ({ role: m.role, content: m.content }));
+
+    // Render messages into chat
+    document.getElementById('welcome-screen')?.remove();
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+
+    for (const m of s.messages) {
+      appendMessage(m.role === 'user' ? 'user' : 'bot', m.content,
+        m.role === 'assistant' ? { source: m.source } : {});
+    }
+
+    // Mark active in sidebar
+    document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`hitem-${id}`)?.classList.add('active');
+
+    container.scrollTop = container.scrollHeight;
+    document.getElementById('message-input').focus();
+    closeDrawer();
+  } catch(e) {}
+}
+
+async function deleteSession(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this conversation?')) return;
+  try {
+    await fetch(`/api/history/${id}`, { method: 'DELETE' });
+    allSessions = allSessions.filter(s => s.id !== id);
+    if (activeSessionId === id) startNewChat();
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+async function renameSession(e, id, currentTitle) {
+  e.stopPropagation();
+  const newTitle = prompt('Rename conversation:', currentTitle);
+  if (!newTitle || !newTitle.trim() || newTitle.trim() === currentTitle) return;
+  try {
+    await fetch(`/api/history/${id}/rename`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTitle.trim() })
+    });
+    const s = allSessions.find(s => s.id === id);
+    if (s) s.title = newTitle.trim();
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+async function clearAllHistory() {
+  if (!confirm('Delete all conversations? This cannot be undone.')) return;
+  try {
+    await fetch('/api/history/clear', { method: 'DELETE' });
+    allSessions = [];
+    activeSessionId = null;
+    startNewChat();
+    renderHistory([]);
+  } catch(e) {}
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+
+async function sendMessage() {
+  const input = document.getElementById('message-input');
+  const text = input.value.trim();
+  if (!text||isLoading) return;
+
+  document.getElementById('welcome-screen')?.remove();
+  input.value=''; input.style.height='auto';
+  isLoading=true; document.getElementById('send-btn').disabled=true;
+
+  appendMessage('user', text);
+  conversationHistory.push({role:'user',content:text});
+  const tid = showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message: text,
+        history: conversationHistory.slice(-10),
+        preferred_ai: preferredAI,
+        session_id: activeSessionId
+      })
+    });
+    const data = await res.json();
+    removeTyping(tid);
+    appendMessage('bot', data.answer, data);
+    conversationHistory.push({role:'assistant',content:data.answer});
+
+    // Track session and refresh history sidebar
+    if (data.session_id) {
+      activeSessionId = data.session_id;
+      // Refresh history list if user is logged in
+      if (window._currentUser) {
+        await loadHistory();
+        // Re-mark the active item
+        document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`hitem-${activeSessionId}`)?.classList.add('active');
+      }
+    }
+  } catch(e) {
+    removeTyping(tid);
+    appendMessage('bot','⚠️ Connection error. Make sure the Flask server is running on port 5000.',{source:'error'});
+  }
+
+  isLoading=false; document.getElementById('send-btn').disabled=false;
+  document.getElementById('message-input').focus();
+}
+
+function sendQuick(text) { document.getElementById('message-input').value=text; sendMessage(); }
+
+function appendMessage(role, content, meta={}) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const time = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  let metaHtml = '';
+  if (role==='bot'&&meta.source) {
+    const srcLabel = {question_bank:'⚡ KB',starter_code:'🚀 Starter',claude:'◆ Claude',gemini:'◈ Gemini',openai:'◉ GPT-4o',web_search:'🌐 Web',error:'✕ Error'}[meta.source]||meta.source;
+    const tried = meta.sources_tried?.length>1 ? `<div class="sources-tried"><span>via:</span>${meta.sources_tried.map(s=>`<span class="src">${s}</span>`).join('→')}</div>`:'' ;
+    metaHtml=`
+      <div class="msg-meta">
+        <span class="source-tag ${meta.source}">${srcLabel}</span>
+        ${meta.severity?`<span class="severity-tag ${meta.severity}">${meta.severity}</span>`:''}
+        <span class="msg-time">${time}</span>
+        ${meta.response_time?`<span class="resp-time">${meta.response_time}s</span>`:''}
+      </div>${tried}`;
+  }
+
+  const rendered = role==='bot' ? addCopyButtons(marked.parse(content)) : escapeHtml(content).replace(/\n/g,'<br>');
+
+  div.innerHTML=`
+    <div class="msg-avatar">${role==='user'?'YOU':'AI'}</div>
+    <div class="msg-body">
+      <div class="msg-bubble">${rendered}</div>
+      ${metaHtml}
+    </div>`;
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  div.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
+}
+
+function addCopyButtons(html) {
+  return html
+    .replace(/<pre><code/g, '<div class="pre-wrapper"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code')
+    .replace(/<\/code><\/pre>/g, '</code></pre></div>');
+}
+
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!'; btn.style.color='#73daca';
+    setTimeout(()=>{ btn.textContent='Copy'; btn.style.color=''; },1500);
+  });
+}
+
+function showTyping() {
+  const id='typing-'+Date.now();
+  const container=document.getElementById('chat-messages');
+  const div=document.createElement('div'); div.className='message bot typing-indicator'; div.id=id;
+  div.innerHTML=`<div class="msg-avatar">AI</div><div class="msg-body"><div class="msg-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  container.appendChild(div); container.scrollTop=container.scrollHeight; return id;
+}
+
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function clearChat() {
+  conversationHistory = [];
+  activeSessionId = null;
+  document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('chat-messages').innerHTML=`
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7aa2f7" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h1>CYBERSHIELD AI</h1>
+      <p>Your intelligent cybersecurity assistant. Ask questions, get starter code for projects, or explore security concepts.</p>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html><script>
+// ── Global state ─────────────────────────────────────────────────────────────
+let conversationHistory = []; // {role, content} pairs for the current chat — sent to AI for context
+let preferredAI = 'gemini';   // Which AI to try first — changed by selectAI()
+let isLoading = false;         // Blocks sending a second message while one is in flight
+
+// ── init() ───────────────────────────────────────────────────────────────────
+async function init() {
+  // Fire all four startup tasks simultaneously instead of one after another
+  await Promise.all([loadStatus(), loadTopics(), loadProjects(), checkAuth()]);
+}
+
+// ── checkAuth() ───────────────────────────────────────────────────────────────
+// Called on page load and after logout. Asks the server if a session exists.
+// If logged in: renders the user badge and shows the history rail.
+// If not logged in: renders Login/Register links and hides history.
+async function checkAuth() {
+  try {
+    const r = await fetch('/api/me');         // GET /api/me — returns username if session exists
+    const d = await r.json();
+    const area = document.getElementById('auth-area');
+    if (d.username) {
+      area.innerHTML = `
+        <div class="user-badge"><span class="user-dot"></span><span>${d.username.toUpperCase()}</span></div>
+        <a href='Profile.html' class="profile-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile
+        </a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      `;
+      window._currentUser = d;                // Store user info globally so other functions can access it
+      document.getElementById('history-rail').classList.add('visible'); // Show the icon rail
+      loadHistory();                          // Fetch and render the conversation list
+    } else {
+      area.innerHTML = `
+        <a href="Login.html" class="login-btn">Login</a>
+        <a href="Signup.html" class="login-btn" style="border-color:rgba(115,218,202,.3);color:var(--accent2)">Register</a>
+      `;
+      document.getElementById('hist-toggle-btn').style.display = 'none';
+      document.getElementById('history-rail').classList.remove('visible'); // Hide the icon rail
+      closeDrawer(); // Close the history drawer if it was open
+    }
+  } catch(e) {}
+}
+
+// ── openProfile() / closeProfile() ────────────────────────────────────────────
+// Opens the profile modal and pre-fills it with the current user's data.
+function openProfile() {
+  const u = window._currentUser || {};
+  document.getElementById('profile-username-display').textContent = u.username || '—';
+  document.getElementById('profile-email-display').textContent = u.email || '—';
+  ['new-email','new-username','current-pwd','new-pwd','confirm-new-pwd'].forEach(id => document.getElementById(id).value = ''); // Clear all input fields
+  document.getElementById('profile-msg').className = 'profile-msg';  // Reset any previous message
+  document.getElementById('modal-pwd-fill').style.width = '0%';       // Reset strength bar
+  document.getElementById('profile-modal').classList.remove('hidden');
+}
+function closeProfile() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+// Close the modal when the user clicks the dark overlay behind it
+document.addEventListener('click', (e) => { if (e.target.id === 'profile-modal') closeProfile(); });
+
+// ── updateModalStrength(pwd) ──────────────────────────────────────────────────
+// Updates the password strength bar in the profile modal as the user types.
+function updateModalStrength(pwd) {
+  let s = 0;
+  if(pwd.length>=8)s++;if(pwd.length>=12)s++;   // Length checks
+  if(/[A-Z]/.test(pwd))s++;if(/[a-z]/.test(pwd))s++; // Case checks
+  if(/\d/.test(pwd))s++;if(/[^A-Za-z0-9]/.test(pwd))s++; // Digit and symbol checks
+  const colors=['#f7768e','#e0af68','#e0af68','#73daca','#7aa2f7']; // red → amber → teal → blue
+  const fill = document.getElementById('modal-pwd-fill');
+  fill.style.width = Math.min(s/6*100,100)+'%';               // Width = score as percentage
+  fill.style.background = colors[Math.min(Math.floor(s/6*5),4)]; // Colour based on score
+}
+
+// ── updateProfile(type) ───────────────────────────────────────────────────────
+// Validates the form inputs for the given update type, then POSTs to /api/profile/update.
+// type can be: 'email', 'username', or 'password'
+async function updateProfile(type) {
+  const msgEl = document.getElementById('profile-msg');
+  msgEl.className = 'profile-msg'; // Clear any previous message
+  let payload = { type };          // Always send the update type so the backend knows what to change
+
+  if (type === 'email') {
+    const val = document.getElementById('new-email').value.trim();
+    if (!val) { msgEl.className='profile-msg error'; msgEl.textContent='Email cannot be empty'; return; }
+    payload.email = val;
+  } else if (type === 'username') {
+    const val = document.getElementById('new-username').value.trim();
+    if (!val || val.length < 3) { msgEl.className='profile-msg error'; msgEl.textContent='Username must be 3+ characters'; return; }
+    payload.username = val;
+  } else if (type === 'password') {
+    const current = document.getElementById('current-pwd').value;
+    const newPwd  = document.getElementById('new-pwd').value;
+    const confirm = document.getElementById('confirm-new-pwd').value;
+    if (!current) { msgEl.className='profile-msg error'; msgEl.textContent='Enter current password'; return; }
+    if (newPwd.length < 6) { msgEl.className='profile-msg error'; msgEl.textContent='New password too short (6+ chars)'; return; }
+    if (newPwd !== confirm) { msgEl.className='profile-msg error'; msgEl.textContent='New passwords do not match'; return; }
+    payload.current_password = current; payload.new_password = newPwd;
+  }
+  try {
+    const res  = await fetch('/api/profile/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.success) {
+      msgEl.className = 'profile-msg success';
+      msgEl.textContent = '✓ ' + (data.message || 'Updated successfully');
+      if (data.user) {
+        window._currentUser = data.user; // Update the globally stored user object
+        document.getElementById('profile-username-display').textContent = data.user.username || '—';
+        document.getElementById('profile-email-display').textContent    = data.user.email    || '—';
+        const badge = document.querySelector('.user-badge span:last-child');
+        if (badge) badge.textContent = data.user.username.toUpperCase(); // Update header badge too
+      }
+    } else { throw new Error(data.error || 'Update failed'); }
+  } catch(err) {
+    msgEl.className = 'profile-msg error';
+    msgEl.textContent = '✕ ' + err.message;
+  }
+}
+
+// ── logout() ──────────────────────────────────────────────────────────────────
+// POST to /api/logout to clear the session cookie, then re-render the header as logged-out.
+async function logout() { await fetch('/api/logout', { method: 'POST' }); checkAuth(); }
+
+// ── loadStatus() ──────────────────────────────────────────────────────────────
+// Asks the server which API keys are configured and lights up the status dots.
+async function loadStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    if (d.claude)     { setDot('dot-claude',true); setAIAvailable('claude'); }
+    if (d.gemini)     { setDot('dot-gemini',true); setAIAvailable('gemini'); }
+    if (d.openai)     { setDot('dot-openai',true); setAIAvailable('openai'); }
+    if (d.web_search)   setDot('dot-web',true);
+    setDot('dot-qb', true); // QB is always available (it's local)
+  } catch(e) {}
+}
+
+function setDot(id, active) { document.getElementById(id)?.classList.toggle('active', active); } // Turn a header status dot green
+function setAIAvailable(ai) { document.getElementById(`ai-${ai}`)?.classList.add('available'); }  // Add green badge to AI button
+
+// ── loadTopics() ──────────────────────────────────────────────────────────────
+// Fetches all QB topic keys and renders them as clickable pills in the Topics tab.
+async function loadTopics() {
+  try {
+    const r = await fetch('/api/topics');
+    const d = await r.json();
+    document.getElementById('topics-list').innerHTML = d.topics.map(t =>
+      `<span class="topic-pill severity-${t.severity}" onclick="sendQuick('Tell me about ${t.key}')">${t.key}</span>`
+    ).join(''); // Each pill calls sendQuick() with a pre-written question when clicked
+  } catch(e) {}
+}
+
+// ── loadProjects() ────────────────────────────────────────────────────────────
+// Fetches the project list and renders each as a clickable card in the Projects tab.
+async function loadProjects() {
+  try {
+    const r = await fetch('/api/starter-codes');
+    const d = await r.json();
+    document.getElementById('projects-list').innerHTML = d.projects.map(p => `
+      <div class="project-card" onclick="sendQuick('Show me starter code for ${p.key}')">
+        <div class="project-name">${p.title}</div>
+        <div class="project-desc">${p.description}</div>
+      </div>
+    `).join(''); // Clicking a card pre-fills the input with "Show me starter code for X" and sends it
+  } catch(e) {}
+}
+
+// ── switchTab(tab) ────────────────────────────────────────────────────────────
+// Switches the visible tab panel in the sidebar (queries / projects / topics).
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['queries','projects','topics'][i]===tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+// ── selectAI(ai) ──────────────────────────────────────────────────────────────
+// Sets the preferred AI for the next message and highlights the chosen button.
+function selectAI(ai) {
+  preferredAI = ai; // Update the global variable — sent with every /api/chat request
+  document.querySelectorAll('.ai-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`ai-${ai}`).classList.add('selected');
+}
+
+// ── History Panel state ────────────────────────────────────────────────────────
+let allSessions = [];          // Full list fetched from /api/history — kept in memory for filtering
+let activeSessionId = null;    // ID of the conversation currently shown in chat
+let historyPanelVisible = false; // Whether the slide-out drawer is currently open
+
+// ── toggleHistoryPanel() ──────────────────────────────────────────────────────
+// Opens or closes the history drawer when the rail icon is clicked.
+function toggleHistoryPanel() {
+  historyPanelVisible = !historyPanelVisible;
+  document.getElementById('history-drawer').classList.toggle('open', historyPanelVisible);    // Slide in/out
+  document.getElementById('history-backdrop').classList.toggle('visible', historyPanelVisible); // Show/hide backdrop
+  document.getElementById('rail-toggle-btn').classList.toggle('active', historyPanelVisible);  // Highlight the button
+  if (historyPanelVisible) {
+    document.getElementById('history-search-input').focus(); // Auto-focus the search box when opening
+  }
+}
+
+// ── closeDrawer() ─────────────────────────────────────────────────────────────
+// Force-closes the drawer regardless of current state. Called after loading a session, etc.
+function closeDrawer() {
+  historyPanelVisible = false;
+  document.getElementById('history-drawer').classList.remove('open');
+  document.getElementById('history-backdrop').classList.remove('visible');
+  document.getElementById('rail-toggle-btn')?.classList.remove('active');
+}
+
+// ── startNewChat() ────────────────────────────────────────────────────────────
+// Resets everything to a blank slate for a new conversation.
+function startNewChat() {
+  activeSessionId = null;       // No session associated yet
+  conversationHistory = [];     // Clear AI context
+  closeDrawer();
+  document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active')); // Remove highlight
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = `
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7aa2f7" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h1>CYBERSHIELD AI</h1>
+      <p>Your intelligent cybersecurity assistant.</p>
+    </div>`;
+  document.getElementById('message-input').focus();
+}
+
+// ── loadHistory() ─────────────────────────────────────────────────────────────
+// Fetches the session list from the server and renders it. Also purges expired sessions (server-side).
+async function loadHistory() {
+  try {
+    const r = await fetch('/api/history');
+    const d = await r.json();
+    if (!d.success) return;
+    allSessions = d.sessions || []; // Cache locally so search doesn't need a new API call
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+// ── relativeTime(iso) ─────────────────────────────────────────────────────────
+// Converts an ISO timestamp to a human-readable label: "just now", "3h ago", "yesterday", etc.
+function relativeTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs   = now - d;
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffHrs  = Math.floor(diffMs / 3600000);
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1)   return 'just now';
+  if (diffMins < 60)  return `${diffMins}m ago`;
+  if (diffHrs  < 24)  return `${diffHrs}h ago`;
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7)   return `${diffDays}d ago`;
+  return d.toLocaleDateString([], {month:'short', day:'numeric'}); // e.g. "May 9"
+}
+
+// ── groupSessions(sessions) ───────────────────────────────────────────────────
+// Splits the flat session list into Today / Yesterday / This week / Older groups.
+function groupSessions(sessions) {
+  const groups = { Today: [], Yesterday: [], 'This week': [], Older: [] };
+  const now = new Date();
+  for (const s of sessions) {
+    const d = new Date(s.updated_at);
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (diffDays < 1)      groups['Today'].push(s);
+    else if (diffDays < 2) groups['Yesterday'].push(s);
+    else if (diffDays < 7) groups['This week'].push(s);
+    else                   groups['Older'].push(s);
+  }
+  return groups;
+}
+
+// ── renderHistory(sessions) ───────────────────────────────────────────────────
+// Builds the full history list HTML and injects it into the drawer.
+function renderHistory(sessions) {
+  const list = document.getElementById('history-list');
+  if (!sessions.length) {
+    // Show the empty state message if there are no sessions
+    list.innerHTML = `
+      <div class="history-empty">
+        <svg class="history-empty-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>No conversations yet.<br>Start chatting to see history here.</p>
+      </div>`;
+    return;
+  }
+
+  const groups = groupSessions(sessions);
+  let html = '';
+  for (const [label, items] of Object.entries(groups)) {
+    if (!items.length) continue;
+    html += `<div class="history-group-label">${label}</div>`;
+    for (const s of items) {
+      const isActive = s.id === activeSessionId; // Highlight the currently loaded session
+      const age   = relativeTime(s.updated_at);
+      const title = escapeHtml(s.title);         // Escape to prevent XSS in session titles
+      html += `
+        <div class="history-item${isActive ? ' active' : ''}" id="hitem-${s.id}" onclick="loadSession(${s.id})">
+          <div class="hi-body">
+            <div class="hi-title">${title}</div>
+            <div class="hi-meta">${age} · ${s.message_count} msg${s.message_count !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="hi-actions">
+            <button class="hi-act-btn" onclick="renameSession(event,${s.id},'${title.replace(/'/g,"\'")}'')" title="Rename">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="hi-act-btn del" onclick="deleteSession(event,${s.id})" title="Delete">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>`;
+    }
+  }
+  list.innerHTML = html;
+}
+
+// ── filterHistory(query) ──────────────────────────────────────────────────────
+// Filters the cached session list by title as the user types in the search box.
+// Does not make a new API call — works on the in-memory allSessions array.
+function filterHistory(query) {
+  const q      = query.toLowerCase().trim();
+  const filtered = q ? allSessions.filter(s => s.title.toLowerCase().includes(q)) : allSessions;
+  renderHistory(filtered);
+}
+
+// ── loadSession(id) ───────────────────────────────────────────────────────────
+// Loads a past conversation — fetches all its messages and re-renders the chat area.
+async function loadSession(id) {
+  try {
+    const r = await fetch(`/api/history/${id}`); // GET /api/history/<id> returns all messages
+    const d = await r.json();
+    if (!d.success) return;
+
+    activeSessionId = id; // Mark this as the active session so new messages go here
+    const s = d.session;
+
+    // Rebuild the AI context from saved messages so the AI remembers the conversation
+    conversationHistory = s.messages.map(m => ({ role: m.role, content: m.content }));
+
+    // Clear the chat area and re-render all messages
+    document.getElementById('welcome-screen')?.remove();
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+
+    for (const m of s.messages) {
+      appendMessage(m.role === 'user' ? 'user' : 'bot', m.content,
+        m.role === 'assistant' ? { source: m.source } : {});
+    }
+
+    // Highlight this session in the sidebar
+    document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(`hitem-${id}`)?.classList.add('active');
+
+    container.scrollTop = container.scrollHeight; // Scroll to the bottom of the loaded messages
+    document.getElementById('message-input').focus();
+    closeDrawer(); // Close the drawer after loading
+  } catch(e) {}
+}
+
+// ── deleteSession(e, id) ──────────────────────────────────────────────────────
+// Deletes a single conversation after confirmation.
+async function deleteSession(e, id) {
+  e.stopPropagation(); // Prevent the click from bubbling up to the history item (which would load the session)
+  if (!confirm('Delete this conversation?')) return;
+  try {
+    await fetch(`/api/history/${id}`, { method: 'DELETE' });
+    allSessions = allSessions.filter(s => s.id !== id); // Remove from local cache
+    if (activeSessionId === id) startNewChat();          // If it was active, start fresh
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+// ── renameSession(e, id, currentTitle) ────────────────────────────────────────
+// Shows a prompt to rename a conversation then sends a PATCH request.
+async function renameSession(e, id, currentTitle) {
+  e.stopPropagation(); // Prevent triggering loadSession()
+  const newTitle = prompt('Rename conversation:', currentTitle);
+  if (!newTitle || !newTitle.trim() || newTitle.trim() === currentTitle) return; // Cancelled or unchanged
+  try {
+    await fetch(`/api/history/${id}/rename`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTitle.trim() })
+    });
+    const s = allSessions.find(s => s.id === id);
+    if (s) s.title = newTitle.trim(); // Update local cache so re-render reflects the change
+    renderHistory(allSessions);
+  } catch(e) {}
+}
+
+// ── clearAllHistory() ─────────────────────────────────────────────────────────
+// Deletes ALL conversations for the user after confirmation.
+async function clearAllHistory() {
+  if (!confirm('Delete all conversations? This cannot be undone.')) return;
+  try {
+    await fetch('/api/history/clear', { method: 'DELETE' });
+    allSessions = [];
+    activeSessionId = null;
+    startNewChat();       // Reset the chat to the welcome screen
+    renderHistory([]);    // Show the empty state in the drawer
+  } catch(e) {}
+}
+
+// ── Chat functions ────────────────────────────────────────────────────────────
+
+// handleKey: Enter sends the message; Shift+Enter inserts a newline as normal
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendMessage(); } }
+
+// autoResize: grows the textarea as the user types, up to a max of 110px
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,110)+'px'; }
+
+// ── sendMessage() ─────────────────────────────────────────────────────────────
+// The main function. Reads the input, sends it to /api/chat, and displays the reply.
+async function sendMessage() {
+  const input = document.getElementById('message-input');
+  const text  = input.value.trim();
+  if (!text||isLoading) return; // Don't send empty messages or while waiting for a reply
+
+  document.getElementById('welcome-screen')?.remove(); // Remove the welcome screen on first message
+  input.value=''; input.style.height='auto';           // Clear and shrink the input
+  isLoading=true; document.getElementById('send-btn').disabled=true; // Block further sends
+
+  appendMessage('user', text);                          // Show the user's message immediately
+  conversationHistory.push({role:'user',content:text}); // Add to context for next AI call
+  const tid = showTyping();                             // Show the animated typing indicator
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message:      text,
+        history:      conversationHistory.slice(-10), // Send last 10 messages for context
+        preferred_ai: preferredAI,                   // Which AI to try first
+        session_id:   activeSessionId                // Null if this is a new conversation
+      })
+    });
+    const data = await res.json();
+    removeTyping(tid);                                            // Remove the typing dots
+    appendMessage('bot', data.answer, data);                      // Show the AI's reply
+    conversationHistory.push({role:'assistant',content:data.answer}); // Add reply to context
+
+    if (data.session_id) {
+      activeSessionId = data.session_id; // The server created a new session — save its ID
+      if (window._currentUser) {
+        await loadHistory(); // Refresh the sidebar to show the new/updated session
+        document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`hitem-${activeSessionId}`)?.classList.add('active'); // Highlight it
+      }
+    }
+  } catch(e) {
+    removeTyping(tid);
+    appendMessage('bot','⚠️ Connection error. Make sure the Flask server is running on port 5000.',{source:'error'});
+  }
+
+  isLoading=false; document.getElementById('send-btn').disabled=false; // Allow sending again
+  document.getElementById('message-input').focus();
+}
+
+// ── sendQuick(text) ───────────────────────────────────────────────────────────
+// Used by sidebar buttons, topic pills, and project cards to pre-fill and send a message.
+function sendQuick(text) { document.getElementById('message-input').value=text; sendMessage(); }
+
+// ── appendMessage(role, content, meta) ────────────────────────────────────────
+// Creates and inserts a message bubble into the chat area.
+function appendMessage(role, content, meta={}) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const time = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  let metaHtml = '';
+  if (role==='bot'&&meta.source) {
+    // Build the source tag label (e.g. "⚡ KB", "◆ Claude")
+    const srcLabel = {question_bank:'⚡ KB',starter_code:'🚀 Starter',claude:'◆ Claude',gemini:'◈ Gemini',openai:'◉ GPT-4o',web_search:'🌐 Web',error:'✕ Error'}[meta.source]||meta.source;
+    // Show the fallback chain (e.g. "via: claude → gemini") only if more than one source was tried
+    const tried = meta.sources_tried?.length>1 ? `<div class="sources-tried"><span>via:</span>${meta.sources_tried.map(s=>`<span class="src">${s}</span>`).join('→')}</div>`:'' ;
+    metaHtml=`
+      <div class="msg-meta">
+        <span class="source-tag ${meta.source}">${srcLabel}</span>
+        ${meta.severity?`<span class="severity-tag ${meta.severity}">${meta.severity}</span>`:''}
+        <span class="msg-time">${time}</span>
+        ${meta.response_time?`<span class="resp-time">${meta.response_time}s</span>`:''}
+      </div>${tried}`;
+  }
+
+  // Bot messages: parse Markdown and inject copy buttons on code blocks
+  // User messages: escape HTML to prevent XSS, convert newlines to <br>
+  const rendered = role==='bot' ? addCopyButtons(marked.parse(content)) : escapeHtml(content).replace(/\n/g,'<br>');
+
+  div.innerHTML=`
+    <div class="msg-avatar">${role==='user'?'YOU':'AI'}</div>
+    <div class="msg-body">
+      <div class="msg-bubble">${rendered}</div>
+      ${metaHtml}
+    </div>`;
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight; // Auto-scroll to the new message
+  div.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b)); // Syntax highlight code blocks
+}
+
+// ── addCopyButtons(html) ──────────────────────────────────────────────────────
+// Wraps every <pre><code> block with a div and injects a Copy button above it.
+function addCopyButtons(html) {
+  return html
+    .replace(/<pre><code/g, '<div class="pre-wrapper"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code')
+    .replace(/<\/code><\/pre>/g, '</code></pre></div>');
+}
+
+// ── copyCode(btn) ─────────────────────────────────────────────────────────────
+// Copies the text inside a code block to the clipboard and briefly changes the button label.
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!'; btn.style.color='#73daca';
+    setTimeout(()=>{ btn.textContent='Copy'; btn.style.color=''; },1500); // Reset after 1.5s
+  });
+}
+
+// ── showTyping() ──────────────────────────────────────────────────────────────
+// Creates the animated three-dot typing indicator and appends it to the chat.
+// Returns a unique ID so removeTyping() can find and delete it later.
+function showTyping() {
+  const id='typing-'+Date.now(); // Unique ID based on timestamp
+  const container=document.getElementById('chat-messages');
+  const div=document.createElement('div'); div.className='message bot typing-indicator'; div.id=id;
+  div.innerHTML=`<div class="msg-avatar">AI</div><div class="msg-body"><div class="msg-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  container.appendChild(div); container.scrollTop=container.scrollHeight; return id;
+}
+
+function removeTyping(id) { document.getElementById(id)?.remove(); } // Remove the typing indicator by its ID
+
+// ── escapeHtml(s) ─────────────────────────────────────────────────────────────
+// Converts &, <, > to HTML entities so user input can't inject HTML or scripts.
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── clearChat() ───────────────────────────────────────────────────────────────
+// Resets the chat to the welcome screen without deleting it from the server.
+function clearChat() {
+  conversationHistory = [];  // Clear the AI context
+  activeSessionId = null;    // Detach from the current session
+  document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('chat-messages').innerHTML=`
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7aa2f7" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h1>CYBERSHIELD AI</h1>
+      <p>Your intelligent cybersecurity assistant. Ask questions, get starter code for projects, or explore security concepts.</p>
+    </div>`;
+}
+
+init(); // Kick off the page — runs checkAuth, loadStatus, loadTopics, loadProjects simultaneously
+</script>
+</body>

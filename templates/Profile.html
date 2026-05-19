@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield AI — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:  #1a1d27; --bg2: #1e2235; --bg3: #232840; --bg4: #2a3050;
+    --border: #2e3550; --border2: #3a4368;
+    --accent: #7aa2f7; --accent2: #73daca; --accent3: #f7768e;
+    --accent4: #e0af68; --accent5: #bb9af7;
+    --text: #c0caf5; --text2: #a9b1d6; --text3: #565f89; --text4: #414868;
+    --mono: 'JetBrains Mono', monospace; --ui: 'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; display: flex; flex-direction: column; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 10%, rgba(115,218,202,.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 20% 90%, rgba(122,162,247,.05) 0%, transparent 70%);
+  }
+  .grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: linear-gradient(rgba(122,162,247,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(122,162,247,.018) 1px,transparent 1px); background-size: 48px 48px; }
+
+  /* Header */
+  header { position: relative; z-index: 10; background: rgba(26,29,39,.95); border-bottom: 1px solid var(--border); padding: 0 28px; height: 54px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: blur(12px); flex-shrink: 0; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-text { font-family: var(--ui); font-size: 17px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent); text-shadow: 0 0 20px rgba(122,162,247,.3); }
+  .logo-text span { color: var(--text3); font-weight: 400; }
+  .header-right { display: flex; align-items: center; gap: 9px; }
+  .nav-link { font-family: var(--mono); font-size: 10px; color: var(--text3); text-decoration: none; padding: 4px 10px; border: 1px solid var(--border); border-radius: 5px; transition: all .2s; }
+  .nav-link:hover { color: var(--accent); border-color: rgba(122,162,247,.3); }
+  .nav-link.back { color: var(--accent2); border-color: rgba(115,218,202,.2); }
+  .nav-link.back:hover { background: rgba(115,218,202,.05); }
+
+  /* Page */
+  .page { position: relative; z-index: 1; flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 36px 20px 60px; }
+  .container { width: 100%; max-width: 560px; }
+
+  /* Page title */
+  .page-title { margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .page-title-row { display: flex; align-items: center; gap: 14px; margin-bottom: 7px; }
+  .page-icon { width: 46px; height: 46px; border: 1.5px solid rgba(115,218,202,.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 24px rgba(115,218,202,.12); animation: iconPulse 3s ease infinite; flex-shrink: 0; }
+  @keyframes iconPulse { 0%,100%{box-shadow:0 0 18px rgba(115,218,202,.1)}50%{box-shadow:0 0 32px rgba(115,218,202,.2)} }
+  .page-title h1 { font-family: var(--ui); font-size: 22px; font-weight: 800; letter-spacing: 2px; color: var(--accent2); }
+  .page-title p { font-size: 11px; color: var(--text3); letter-spacing: .4px; padding-left: 60px; margin-top: 2px; }
+
+  /* Identity card */
+  .identity-card { background: var(--bg2); border: 1px solid var(--border2); padding: 16px 20px; margin-bottom: 22px; border-radius: 8px; position: relative; overflow: hidden; }
+  .identity-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg,transparent,rgba(115,218,202,.4),transparent); }
+  .identity-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .identity-row:last-child { border: none; padding-bottom: 0; }
+  .identity-key { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); min-width: 90px; }
+  .identity-val { font-size: 13px; color: var(--text); letter-spacing: .3px; }
+  .identity-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .status-online { font-size: 9px; color: var(--accent2); background: rgba(115,218,202,.08); border: 1px solid rgba(115,218,202,.2); padding: 2px 8px; border-radius: 20px; }
+
+  /* Panel accordion */
+  .panel { background: var(--bg2); border: 1px solid var(--border); margin-bottom: 10px; border-radius: 8px; overflow: hidden; transition: border-color .2s; }
+  .panel:hover { border-color: var(--border2); }
+  .panel-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
+  .panel-header-icon { width: 30px; height: 30px; border: 1px solid var(--border2); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--text3); flex-shrink: 0; transition: all .2s; }
+  .panel-header:hover .panel-header-icon { border-color: var(--accent); color: var(--accent); background: rgba(122,162,247,.05); }
+  .panel-header-text { flex: 1; }
+  .panel-title { font-family: var(--ui); font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
+  .panel-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .panel-chevron { color: var(--text3); transition: transform .25s; flex-shrink: 0; }
+  .panel-chevron.open { transform: rotate(180deg); }
+  .panel-body { padding: 18px; display: none; border-top: 1px solid var(--border); background: rgba(0,0,0,.08); }
+  .panel-body.open { display: block; }
+
+  /* Form elements */
+  .field { margin-bottom: 14px; }
+  .field:last-of-type { margin-bottom: 0; }
+  .field label { display: flex; align-items: center; gap: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text2); margin-bottom: 6px; }
+  .field-input { width: 100%; background: rgba(0,0,0,.25); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 13px; outline: none; transition: all .2s; border-radius: 6px; }
+  .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,162,247,.08); }
+  .field-input::placeholder { color: var(--text4); }
+  .pwd-row { position: relative; }
+  .pwd-row .field-input { padding-right: 44px; }
+  .eye-btn { position: absolute; right: 0; top: 0; bottom: 0; width: 42px; background: none; border: none; border-left: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: all .2s; border-radius: 0 6px 6px 0; }
+  .eye-btn:hover { background: rgba(122,162,247,.05); color: var(--accent); }
+  .eye-btn.on { color: var(--accent2); border-left-color: rgba(115,218,202,.25); }
+  .strength-bar { height: 2px; background: var(--border); margin-top: 4px; overflow: hidden; border-radius: 1px; }
+  .strength-fill { height: 100%; width: 0%; transition: width .3s, background .3s; border-radius: 1px; }
+  .req-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .req { font-size: 9px; padding: 2px 7px; border: 1px solid var(--border); border-radius: 20px; color: var(--text4); transition: all .2s; }
+  .req.met { border-color: rgba(115,218,202,.4); color: var(--accent2); background: rgba(115,218,202,.05); }
+  .field-hint { font-size: 10px; color: var(--text3); margin-top: 5px; }
+
+  /* Messages */
+  .panel-msg { padding: 9px 13px; font-size: 11px; margin-bottom: 14px; border-radius: 5px; display: none; animation: fadeIn .3s ease; }
+  .panel-msg.error   { background: rgba(247,118,142,.08); border: 1px solid rgba(247,118,142,.3); color: var(--accent3); display: block; }
+  .panel-msg.success { background: rgba(115,218,202,.08); border: 1px solid rgba(115,218,202,.3); color: var(--accent2); display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-3px)}to{opacity:1} }
+
+  /* Buttons */
+  .save-btn { padding: 9px 20px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all .2s; border-radius: 6px; margin-top: 14px; position: relative; overflow: hidden; }
+  .save-btn::before { content: ''; position: absolute; inset: 0; background: var(--accent); transform: translateX(-101%); transition: transform .3s cubic-bezier(.16,1,.3,1); z-index: -1; }
+  .save-btn:hover { border-color: var(--accent); color: var(--bg); }
+  .save-btn:hover::before { transform: translateX(0); }
+  .save-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .save-btn.green::before { background: var(--accent2); }
+  .save-btn.green:hover { border-color: var(--accent2); color: var(--bg); }
+  .save-btn.danger { border-color: rgba(247,118,142,.35); color: var(--accent3); }
+  .save-btn.danger::before { background: var(--accent3); }
+  .save-btn.danger:hover { border-color: var(--accent3); color: #fff; }
+  .save-btn.amber { border-color: rgba(224,175,104,.35); color: var(--accent4); }
+  .save-btn.amber::before { background: var(--accent4); }
+  .save-btn.amber:hover { border-color: var(--accent4); color: var(--bg); }
+
+  .danger-zone { border-color: rgba(247,118,142,.2); }
+  .danger-zone .panel-header-icon { border-color: rgba(247,118,142,.25); color: var(--accent3); }
+  .danger-zone .panel-title { color: var(--accent3); }
+
+  .spinner { width: 12px; height: 12px; border: 2px solid rgba(122,162,247,.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* Not logged in */
+  #auth-gate { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 80px 20px; text-align: center; }
+  #auth-gate h2 { font-family: var(--ui); font-size: 20px; letter-spacing: 2px; color: var(--accent3); }
+  #auth-gate p { font-size: 12px; color: var(--text3); }
+  .gate-btn { padding: 10px 24px; border: 1px solid var(--accent); color: var(--accent); background: transparent; font-family: var(--mono); font-size: 12px; cursor: pointer; text-decoration: none; display: inline-block; transition: all .2s; border-radius: 6px; }
+  .gate-btn:hover { background: rgba(122,162,247,.08); }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+
+<header>
+  <a class="logo" href="/">
+    <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#7aa2f7" stroke-width="1.5" fill="rgba(122,162,247,0.06)"/>
+      <circle cx="18" cy="18" r="3.5" fill="#7aa2f7" opacity=".9"/>
+    </svg>
+    <div class="logo-text">CYBERSHIELD<span> AI</span></div>
+  </a>
+  <div class="header-right">
+    <a href="/" class="nav-link back">← Back to Terminal</a>
+    <span class="nav-link" id="header-user" style="color:var(--accent2);border-color:rgba(115,218,202,.2);">Loading...</span>
+  </div>
+</header>
+
+<div class="page">
+  <!-- Not logged in -->
+  <div id="auth-gate">
+    <h2>⚠ Access Denied</h2>
+    <p>You must be logged in to view your profile.</p>
+    <a href="Login.html" class="gate-btn">Login</a>
+  </div>
+
+  <!-- Profile content -->
+  <div class="container" id="profile-content" style="display:none;">
+    <div class="page-title">
+      <div class="page-title-row">
+        <div class="page-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#73daca" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <h1>Agent Profile</h1>
+      </div>
+      <p>Manage your credentials and account settings</p>
+    </div>
+
+    <!-- Identity card -->
+    <div class="identity-card">
+      <div class="identity-row">
+        <div class="identity-dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></div>
+        <span class="identity-key">Status</span>
+        <span class="status-online">● Online</span>
+      </div>
+      <div class="identity-row">
+        <div class="identity-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>
+        <span class="identity-key">Username</span>
+        <span class="identity-val" id="id-username">—</span>
+      </div>
+      <div class="identity-row">
+        <div class="identity-dot" style="background:var(--accent4);box-shadow:0 0 6px var(--accent4)"></div>
+        <span class="identity-key">Email</span>
+        <span class="identity-val" id="id-email">—</span>
+      </div>
+      <div class="identity-row">
+        <div class="identity-dot" style="background:var(--text4)"></div>
+        <span class="identity-key">Member Since</span>
+        <span class="identity-val" id="id-created">—</span>
+      </div>
+    </div>
+
+    <!-- Change Email -->
+    <div class="panel" id="panel-email">
+      <div class="panel-header" onclick="togglePanel('email')">
+        <div class="panel-header-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="panel-header-text">
+          <div class="panel-title">Change Email</div>
+          <div class="panel-sub">Update your login email address</div>
+        </div>
+        <svg class="panel-chevron" id="chev-email" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="panel-body" id="body-email">
+        <div class="panel-msg" id="msg-email"></div>
+        <div class="field">
+          <label>New Email Address</label>
+          <input type="email" class="field-input" id="new-email" placeholder="new_email@domain.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Current Password <span style="font-size:9px;color:var(--text3)">(to confirm)</span></label>
+          <div class="pwd-row">
+            <input type="password" class="field-input" id="email-confirm-pwd" placeholder="confirm_password">
+            <button type="button" class="eye-btn" onclick="toggleEye('email-confirm-pwd',this)">
+              <svg class="eye-open" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="save-btn green" onclick="saveEmail()">Save Email</button>
+      </div>
+    </div>
+
+    <!-- Change Username -->
+    <div class="panel" id="panel-username">
+      <div class="panel-header" onclick="togglePanel('username')">
+        <div class="panel-header-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="panel-header-text">
+          <div class="panel-title">Change Username</div>
+          <div class="panel-sub">Pick a new display name</div>
+        </div>
+        <svg class="panel-chevron" id="chev-username" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="panel-body" id="body-username">
+        <div class="panel-msg" id="msg-username"></div>
+        <div class="field">
+          <label>New Username</label>
+          <input type="text" class="field-input" id="new-username" placeholder="new_username" minlength="3" autocomplete="username">
+          <div class="field-hint">Minimum 3 characters</div>
+        </div>
+        <div class="field">
+          <label>Current Password <span style="font-size:9px;color:var(--text3)">(to confirm)</span></label>
+          <div class="pwd-row">
+            <input type="password" class="field-input" id="username-confirm-pwd" placeholder="confirm_password">
+            <button type="button" class="eye-btn" onclick="toggleEye('username-confirm-pwd',this)">
+              <svg class="eye-open" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="save-btn" onclick="saveUsername()">Save Username</button>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="panel" id="panel-password">
+      <div class="panel-header" onclick="togglePanel('password')">
+        <div class="panel-header-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="panel-header-text">
+          <div class="panel-title">Change Password</div>
+          <div class="panel-sub">Update your login password</div>
+        </div>
+        <svg class="panel-chevron" id="chev-password" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="panel-body" id="body-password">
+        <div class="panel-msg" id="msg-password"></div>
+        <div class="field">
+          <label>Current Password</label>
+          <div class="pwd-row">
+            <input type="password" class="field-input" id="current-pwd" placeholder="current_password" autocomplete="current-password">
+            <button type="button" class="eye-btn" onclick="toggleEye('current-pwd',this)">
+              <svg class="eye-open" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label>New Password</label>
+          <div class="pwd-row">
+            <input type="password" class="field-input" id="new-pwd" placeholder="new_password" autocomplete="new-password" oninput="updateStrength(this.value)">
+            <button type="button" class="eye-btn" onclick="toggleEye('new-pwd',this)">
+              <svg class="eye-open" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <div class="strength-bar"><div class="strength-fill" id="new-pwd-fill"></div></div>
+          <div class="req-list">
+            <span class="req" id="pr-len">8+ chars</span>
+            <span class="req" id="pr-upper">UPPER</span>
+            <span class="req" id="pr-lower">lower</span>
+            <span class="req" id="pr-digit">123</span>
+            <span class="req" id="pr-sym">!@#</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Confirm New Password</label>
+          <div class="pwd-row">
+            <input type="password" class="field-input" id="confirm-new-pwd" placeholder="repeat_new_password" autocomplete="new-password" oninput="checkPwdMatch()">
+            <button type="button" class="eye-btn" onclick="toggleEye('confirm-new-pwd',this)">
+              <svg class="eye-open" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <div class="field-hint" id="pwd-match-hint" style="height:16px;margin-top:6px;"></div>
+        </div>
+        <button class="save-btn" onclick="savePassword()">Save Password</button>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="panel danger-zone" id="panel-danger">
+      <div class="panel-header" onclick="togglePanel('danger')">
+        <div class="panel-header-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7768e" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="panel-header-text">
+          <div class="panel-title">Danger Zone</div>
+          <div class="panel-sub">Logout or delete your account</div>
+        </div>
+        <svg class="panel-chevron" id="chev-danger" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="panel-body" id="body-danger">
+        <div class="panel-msg" id="msg-danger"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="save-btn amber" onclick="doLogout()">Logout</button>
+          <button class="save-btn danger" onclick="confirmDelete()">Delete Account</button>
+        </div>
+        <div class="field-hint" style="margin-top:10px;">⚠ Account deletion is permanent and cannot be undone.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+
+async function init() {
+  try {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.username) { document.getElementById('auth-gate').style.display = 'flex'; return; }
+    currentUser = d;
+    document.getElementById('profile-content').style.display = 'block';
+    document.getElementById('header-user').textContent = d.username;
+    document.getElementById('id-username').textContent = d.username;
+    document.getElementById('id-email').textContent = d.email || '—';
+    document.getElementById('id-created').textContent = d.created_at
+      ? new Date(d.created_at).toLocaleDateString('en-GB',{year:'numeric',month:'short',day:'numeric'}) : '—';
+  } catch(e) { document.getElementById('auth-gate').style.display = 'flex'; }
+}
+init();
+
+function togglePanel(name) {
+  const body = document.getElementById('body-'+name);
+  const chev = document.getElementById('chev-'+name);
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.panel-body').forEach(b=>b.classList.remove('open'));
+  document.querySelectorAll('.panel-chevron').forEach(c=>c.classList.remove('open'));
+  if (!isOpen) { body.classList.add('open'); chev.classList.add('open'); }
+}
+
+function toggleEye(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  btn.querySelector('.eye-open').style.display  = isHidden ? 'none'  : 'block';
+  btn.querySelector('.eye-closed').style.display = isHidden ? 'block' : 'none';
+  btn.classList.toggle('on', isHidden);
+}
+
+function updateStrength(pwd) {
+  const reqs = {len:pwd.length>=8,upper:/[A-Z]/.test(pwd),lower:/[a-z]/.test(pwd),digit:/\d/.test(pwd),sym:/[^A-Za-z0-9]/.test(pwd)};
+  Object.entries(reqs).forEach(([k,v])=>{ const el=document.getElementById('pr-'+k); if(el)el.classList.toggle('met',v); });
+  const score=Object.values(reqs).filter(Boolean).length+(pwd.length>=12?1:0);
+  const pct=Math.min(score/6*100,100);
+  const colors=['#f7768e','#e0af68','#e0af68','#73daca','#7aa2f7'];
+  const fill=document.getElementById('new-pwd-fill');
+  fill.style.width=pct+'%'; fill.style.background=colors[Math.min(Math.floor(score/6*5),4)];
+  checkPwdMatch();
+}
+
+function checkPwdMatch() {
+  const p1=document.getElementById('new-pwd').value;
+  const p2=document.getElementById('confirm-new-pwd').value;
+  const hint=document.getElementById('pwd-match-hint');
+  if(!p2){hint.textContent='';return;}
+  hint.textContent = p1===p2 ? '✓ Passwords match' : '✕ Passwords do not match';
+  hint.style.color = p1===p2 ? '#73daca' : '#f7768e';
+}
+
+function showMsg(panelName, type, text) {
+  const el = document.getElementById('msg-'+panelName);
+  el.className = 'panel-msg ' + type;
+  el.textContent = text;
+  if(type==='success') setTimeout(()=>{ el.className='panel-msg'; }, 4000);
+}
+
+async function apiUpdate(payload) {
+  const res = await fetch('/api/profile/update', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  return res.json();
+}
+
+async function saveEmail() {
+  const email = document.getElementById('new-email').value.trim();
+  const pwd   = document.getElementById('email-confirm-pwd').value;
+  if(!email||!email.includes('@')){ showMsg('email','error','Enter a valid email'); return; }
+  if(!pwd){ showMsg('email','error','Current password required'); return; }
+  try {
+    const d = await apiUpdate({type:'email',email,current_password:pwd});
+    if(d.success){ showMsg('email','success','✓ Email updated successfully'); document.getElementById('id-email').textContent=email; document.getElementById('new-email').value=''; document.getElementById('email-confirm-pwd').value=''; }
+    else throw new Error(d.error||'Update failed');
+  } catch(e){ showMsg('email','error','✕ '+e.message); }
+}
+
+async function saveUsername() {
+  const username = document.getElementById('new-username').value.trim();
+  const pwd      = document.getElementById('username-confirm-pwd').value;
+  if(username.length<3){ showMsg('username','error','Username must be 3+ characters'); return; }
+  if(!pwd){ showMsg('username','error','Current password required'); return; }
+  try {
+    const d = await apiUpdate({type:'username',username,current_password:pwd});
+    if(d.success){ showMsg('username','success','✓ Username updated successfully'); document.getElementById('id-username').textContent=username; document.getElementById('header-user').textContent=username; document.getElementById('new-username').value=''; document.getElementById('username-confirm-pwd').value=''; if(currentUser)currentUser.username=username; }
+    else throw new Error(d.error||'Update failed');
+  } catch(e){ showMsg('username','error','✕ '+e.message); }
+}
+
+async function savePassword() {
+  const current=document.getElementById('current-pwd').value;
+  const newPwd=document.getElementById('new-pwd').value;
+  const confirm=document.getElementById('confirm-new-pwd').value;
+  if(!current){ showMsg('password','error','Enter current password'); return; }
+  if(newPwd.length<6){ showMsg('password','error','New password too short (6+ chars)'); return; }
+  if(newPwd!==confirm){ showMsg('password','error','Passwords do not match'); return; }
+  try {
+    const d=await apiUpdate({type:'password',current_password:current,new_password:newPwd});
+    if(d.success){ showMsg('password','success','✓ Password changed successfully'); document.getElementById('current-pwd').value=''; document.getElementById('new-pwd').value=''; document.getElementById('confirm-new-pwd').value=''; document.getElementById('new-pwd-fill').style.width='0%'; document.querySelectorAll('#body-password .req').forEach(r=>r.classList.remove('met')); document.getElementById('pwd-match-hint').textContent=''; }
+    else throw new Error(d.error||'Update failed');
+  } catch(e){ showMsg('password','error','✕ '+e.message); }
+}
+
+async function doLogout() { await fetch('/api/logout',{method:'POST'}); window.location.href='/'; }
+
+async function confirmDelete() {
+  if(!window.confirm('Are you sure you want to permanently delete your account? This cannot be undone.')) return;
+  try {
+    const d=await apiUpdate({type:'delete_account'});
+    if(d.success){ await fetch('/api/logout',{method:'POST'}); window.location.href='/'; }
+    else throw new Error(d.error||'Deletion failed');
+  } catch(e){ showMsg('danger','error','✕ '+e.message); }
+}
+</script>
+</body>
+</html>
